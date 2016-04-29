@@ -1,0 +1,16 @@
+{
+    "name": "mwijngaard/php-pdg-analysis",
+    "authors": [
+        {
+            "name": "Merijn Wijngaard",
+            "email": "mwijngaard@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5",
+        "nikic/php-parser": "^2.0",
+        "ircmaxell/php-cfg": "dev-master",
+        "ircmaxell/php-types": "dev-master",
+        "phpdocumentor/graphviz": "dev-master"
+    }
+}
