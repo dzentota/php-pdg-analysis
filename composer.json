@@ -12,5 +12,10 @@
         "ircmaxell/php-cfg": "dev-master",
         "ircmaxell/php-types": "dev-master",
         "phpdocumentor/graphviz": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "PhpPdgAnalysis\\": "src/PhpPdgAnalysis/"
+        }
     }
 }
