@@ -4,12 +4,13 @@ namespace PhpPdgAnalysis\Analysis;
 
 interface AnalysisInterface {
 	/**
-	 * @return string[];
+	 * @param array $cache
+	 * @return array
 	 */
-	public function getColumnsNames();
+	public function getValues($cache);
 
 	/**
 	 * @return string[]
 	 */
-	public function getSortColumnNames();
+	public function getSortColumns();
 }

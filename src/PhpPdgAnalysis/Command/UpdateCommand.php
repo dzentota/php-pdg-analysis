@@ -7,7 +7,12 @@ use PhpParser\ParserFactory;
 use PhpPdgAnalysis\Analyser\AnalyserInterface;
 use PhpPdgAnalysis\Analyser\LibraryInfo;
 use PhpPdgAnalysis\Analyser\VisitingAnalyser;
+use PhpPdgAnalysis\Analyser\Visitor\FuncAssignRefCountingVisitor;
+use PhpPdgAnalysis\Analyser\Visitor\FuncEvalCountingVisitor;
+use PhpPdgAnalysis\Analyser\Visitor\FuncGlobalCountingVisitor;
+use PhpPdgAnalysis\Analyser\Visitor\FuncIncludeCountingVisitor;
 use PhpPdgAnalysis\Analyser\Visitor\FunctionCountingVisitor;
+use PhpPdgAnalysis\Analyser\Visitor\FuncVarVarCountingVisitor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -25,8 +30,12 @@ class UpdateCommand extends Command {
 		$parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
 		$this->analysers = [
 			"libraryInfo" => new LibraryInfo(),
-			"functionCounts" => new VisitingAnalyser($parser, new FunctionCountingVisitor()),
-//			"problematicFeatures" => null,
+			"functionCount" => new VisitingAnalyser($parser, new FunctionCountingVisitor()),
+			"funcAssignRefCount" => new VisitingAnalyser($parser, new FuncAssignRefCountingVisitor()),
+			"funcEvalCount" => new VisitingAnalyser($parser, new FuncEvalCountingVisitor()),
+			"funcGlobalCount" => new VisitingAnalyser($parser, new FuncGlobalCountingVisitor()),
+			"funcIncludeCount" => new VisitingAnalyser($parser, new FuncIncludeCountingVisitor()),
+			"funcVarVarCount" => new VisitingAnalyser($parser, new FuncVarVarCountingVisitor()),
 		];
 		parent::__construct("update");
 	}
@@ -79,14 +88,14 @@ class UpdateCommand extends Command {
 						foreach ($analysisResults as $key => $value) {
 							$pathCache[$key] = $value;
 						}
+						$cache[$fullPath] = $pathCache;
+						file_put_contents($this->cacheFile, json_encode($cache, JSON_PRETTY_PRINT));
 						echo "analyser $analyserName done\n";
 					} else {
 						echo "in cache\n";
 					}
 				}
 				echo "$filename done " . json_encode($pathCache, JSON_PRETTY_PRINT) . "\n";
-				$cache[$fullPath] = $pathCache;
-				file_put_contents($this->cacheFile, json_encode($cache, JSON_PRETTY_PRINT));
 			}
 		}
 	}

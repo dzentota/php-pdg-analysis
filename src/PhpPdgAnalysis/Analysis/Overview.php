@@ -3,19 +3,19 @@
 namespace PhpPdgAnalysis\Analysis;
 
 class Overview implements AnalysisInterface {
-	public function getColumnsNames() {
+	public function getValues($cache) {
 		return [
-			"name",
-			"version",
-			"date",
-			"php",
-			"fileCount",
-			"sloc",
-			"description",
+			$cache["name"] ?? "",
+			$cache["version"] ?? "",
+			$cache["date"] ?? "",
+			$cache["php"] ?? "",
+			$cache["fileCount"] ?? "",
+			$cache["sloc"] ?? "",
+			$cache["description"] ?? "",
 		];
 	}
 
-	public function getSortColumnNames() {
+	public function getSortColumns() {
 		return [
 			[0,1]
 		];

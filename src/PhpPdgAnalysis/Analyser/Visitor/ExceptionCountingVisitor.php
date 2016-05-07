@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpPdgAnalysis;
+namespace PhpPdgAnalysis\Analyser\Visitor;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\TryCatch;

@@ -39,27 +39,23 @@ class PrintCommand extends Command {
 			throw new \RuntimeException("No such analysis");
 		}
 		$analysis = $this->analyses[$analysis_name];
-		$columnNames = $analysis->getColumnsNames();
-		$sortColumnNames = $analysis->getSortColumnNames();
+		$sortColumns = $analysis->getSortColumns();
 
-		// extract wanted results
 		$rows = [];
 		$maxLengths = [];
 		foreach ($cache as $results) {
-			$row = [];
-			foreach ($columnNames as $i => $columnName) {
-				$value = isset($results[$columnName]) ? $results[$columnName] : "";
+			$values = $analysis->getValues($results);
+			foreach ($values as $i => $value) {
 				$valueLength = strlen($value);
 				if (!isset($maxLengths[$i]) || $maxLengths[$i] < $valueLength) {
 					$maxLengths[$i] = $valueLength;
 				}
-				$row[] = $value;
 			}
-			$rows[] = $row;
+			$rows[] = $values;
 		}
 
-		usort($rows, function ($a, $b) use ($sortColumnNames) {
-			foreach ($sortColumnNames as list($sortColumnName,$order)) {
+		usort($rows, function ($a, $b) use ($sortColumns) {
+			foreach ($sortColumns as list($sortColumnName,$order)) {
 				$aValue = isset($a[$sortColumnName]) ? $a[$sortColumnName] : "";
 				$bValue = isset($b[$sortColumnName]) ? $b[$sortColumnName] : "";
 				$compValue = strnatcasecmp($aValue, $bValue) * $order;
