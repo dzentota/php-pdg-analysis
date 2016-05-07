@@ -23,4 +23,8 @@ class FunctionCountingVisitor extends NodeVisitorAbstract implements AnalysingVi
 			"funcCount" => $this->funcCount
 		];
 	}
+
+	public function getSuppliedAnalysisKeys() {
+		return ["funcCount"];
+	}
 }

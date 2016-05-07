@@ -2,10 +2,8 @@
 
 namespace PhpPdgAnalysis\Analyser;
 
-use PhpPdgAnalysis\Analyser\AnalyserInterface;
-
 class LibraryInfo implements AnalyserInterface {
-	public function analyse(\SplFileInfo $libraryPath) {
+	public function analyse(\SplFileInfo $libraryRootFileInfo) {
 		$info = [
 			"cakephp" => [
 				"name" => "CakePHP",
@@ -109,7 +107,11 @@ class LibraryInfo implements AnalyserInterface {
 				"release" => "27-01-2016",
 			],
 		];
-		$filename = $libraryPath->getFilename();
+		$filename = $libraryRootFileInfo->getFilename();
 		return isset($info[$filename]) ? $info[$filename] : [];
+	}
+
+	public function getSuppliedAnalysisKeys() {
+		return ["name", "version", "release"];
 	}
 }

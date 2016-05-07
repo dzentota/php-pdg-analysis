@@ -2,9 +2,12 @@
 
 namespace PhpPdgAnalysis\Command;
 
+use PhpParser\Parser;
+use PhpParser\ParserFactory;
 use PhpPdgAnalysis\Analyser\AnalyserInterface;
-use PhpPdgAnalysis\Analyser\FunctionCounts;
 use PhpPdgAnalysis\Analyser\LibraryInfo;
+use PhpPdgAnalysis\Analyser\VisitingAnalyser;
+use PhpPdgAnalysis\Analyser\Visitor\FunctionCountingVisitor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -19,10 +22,11 @@ class UpdateCommand extends Command {
 
 	public function __construct($cacheFile) {
 		$this->cacheFile = $cacheFile;
+		$parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
 		$this->analysers = [
 			"libraryInfo" => new LibraryInfo(),
-			"functionCounts" => new FunctionCounts(),
-			"problematicFeatures" => null,
+			"functionCounts" => new VisitingAnalyser($parser, new FunctionCountingVisitor()),
+//			"problematicFeatures" => null,
 		];
 		parent::__construct("update");
 	}
@@ -33,9 +37,15 @@ class UpdateCommand extends Command {
 			->addOption(
 				"analyser",
 				"a",
-				InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+				InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
 				"Which analysers should be run (default all)",
 				array_keys($this->analysers)
+			)
+			->addOption(
+				"force",
+				"f",
+				InputOption::VALUE_NONE,
+				"Whether or not already cached results should be overwritten"
 			);
 	}
 
@@ -54,17 +64,39 @@ class UpdateCommand extends Command {
 
 		foreach (new \DirectoryIterator(self::LIBRARY_ROOT) as $fileInfo) {
 			if ($fileInfo->isDir() && !$fileInfo->isDot()) {
+				$filename = $fileInfo->getFilename();
+				echo "analysing $filename\n";
 				$fullPath = (string) $fileInfo;
 				$pathCache = isset($cache[$fullPath]) ? $cache[$fullPath] : [];
+
 				foreach ($analyserNames as $analyserName) {
-					$analysisResults = $this->analysers[$analyserName]->analyse($fileInfo);
-					foreach ($analysisResults as $key => $value) {
-						$pathCache[$key] = $value;
+					echo "analyser $analyserName: ";
+					$analyser = $this->analysers[$analyserName];
+					$suppliedKeys = $analyser->getSuppliedAnalysisKeys();
+					if ($input->getOption('force') || !$this->areAllKeysSet($suppliedKeys, $pathCache)) {
+						echo "applying\n";
+						$analysisResults = $analyser->analyse($fileInfo);
+						foreach ($analysisResults as $key => $value) {
+							$pathCache[$key] = $value;
+						}
+						echo "analyser $analyserName done\n";
+					} else {
+						echo "in cache\n";
 					}
 				}
+				echo "$filename done " . json_encode($pathCache, JSON_PRETTY_PRINT) . "\n";
 				$cache[$fullPath] = $pathCache;
 				file_put_contents($this->cacheFile, json_encode($cache, JSON_PRETTY_PRINT));
 			}
 		}
+	}
+
+	private function areAllKeysSet($keys, $arr) {
+		foreach ($keys as $key) {
+			if (!isset($arr[$key])) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
