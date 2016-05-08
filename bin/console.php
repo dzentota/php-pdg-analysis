@@ -11,6 +11,7 @@ use PhpPdgAnalysis\Analysis\Visitor\FuncGlobalCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncIncludeCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncVarVarCountingVisitor;
 use PhpPdgAnalysis\Table\Overview;
+use PhpPdgAnalysis\Table\ProblematicFeatures;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
 use PhpPdgAnalysis\Command\TablePrintCommand;
@@ -29,7 +30,8 @@ $analysingVisitors = [
 	"funcVarVarCount" => new FuncVarVarCountingVisitor(),
 ];
 $tables = [
-	"overview" => new Overview()
+	"overview" => new Overview(),
+	"problematicFeatures" => new ProblematicFeatures(),
 ];
 
 $application = new Application();
