@@ -14,7 +14,9 @@ use PhpPdgAnalysis\Table\Overview;
 use PhpPdgAnalysis\Table\ProblematicFeatures;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
+use PhpPdgAnalysis\Command\AnalysisListCommand;
 use PhpPdgAnalysis\Command\TablePrintCommand;
+use PhpPdgAnalysis\Command\TableListCommand;
 
 $cacheFile = __DIR__ . '/cache.json';
 
@@ -37,5 +39,7 @@ $tables = [
 $application = new Application();
 $application->add(new AnalysisClearCommand($cacheFile));
 $application->add(new AnalysisRunCommand($cacheFile, $directoryAnalyses, $analysingVisitors));
+$application->add(new AnalysisListCommand($directoryAnalyses, $analysingVisitors));
 $application->add(new TablePrintCommand($cacheFile, $tables));
+$application->add(new TableListCommand($tables));
 $application->run();
