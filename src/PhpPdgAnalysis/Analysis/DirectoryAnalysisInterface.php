@@ -1,8 +1,8 @@
 <?php
 
-namespace PhpPdgAnalysis\Analyser;
+namespace PhpPdgAnalysis\Analysis;
 
-interface AnalyserInterface {
+interface DirectoryAnalysisInterface {
 	/**
 	 * @param \SplFileInfo $libraryRootFileInfo
 	 * @return array

@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpPdgAnalysis\Analyser\Visitor;
+namespace PhpPdgAnalysis\Analysis\Visitor;
 
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class FunctionCountingVisitor extends NodeVisitorAbstract implements AnalysingVisitorInterface {
+class FunctionCountingVisitor extends NodeVisitorAbstract implements AnalysisVisitorInterface {
 	private $funcCount;
 
 	public function beforeTraverse(array $nodes) {

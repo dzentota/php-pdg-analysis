@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpPdgAnalysis\Analyser\Visitor;
+namespace PhpPdgAnalysis\Analysis\Visitor;
 
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class FuncAssignRefCountingVisitor extends NodeVisitorAbstract implements AnalysingVisitorInterface {
+class FuncAssignRefCountingVisitor extends NodeVisitorAbstract implements AnalysisVisitorInterface {
 	private $funcAssignRefCounts;
 	public $funcsWithAssignRefCount;
 	public $assignRefCount;

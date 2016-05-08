@@ -2,24 +2,21 @@
 
 namespace PhpPdgAnalysis\Command;
 
-use PhpPdgAnalysis\Analysis\AnalysisInterface;
-use PhpPdgAnalysis\Analysis\Overview;
+use PhpPdgAnalysis\Table\TableInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class PrintCommand extends Command {
+class TablePrintCommand extends Command {
 	private $cacheFile;
-	/** @var AnalysisInterface[] */
-	private $analyses;
+	/** @var TableInterface[] */
+	private $tables;
 
-	public function __construct($cacheFile) {
+	public function __construct($cacheFile, $tables) {
 		$this->cacheFile = $cacheFile;
-		$this->analyses = [
-			"overview" => new Overview(),
-		];
-		parent::__construct("print");
+		$this->tables = $tables;
+		parent::__construct("table:print");
 	}
 
 	protected function configure() {
@@ -35,10 +32,10 @@ class PrintCommand extends Command {
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$cache = json_decode(file_get_contents($this->cacheFile), true);
 		$analysis_name = $input->getArgument("analysis");
-		if (!isset($this->analyses[$analysis_name])) {
+		if (!isset($this->tables[$analysis_name])) {
 			throw new \RuntimeException("No such analysis");
 		}
-		$analysis = $this->analyses[$analysis_name];
+		$analysis = $this->tables[$analysis_name];
 		$sortColumns = $analysis->getSortColumns();
 
 		$rows = [];

@@ -1,8 +1,8 @@
 <?php
 
-namespace PhpPdgAnalysis\Analyser;
+namespace PhpPdgAnalysis\Analysis;
 
-class LibraryInfo implements AnalyserInterface {
+class LibraryInfo implements DirectoryAnalysisInterface {
 	public function analyse(\SplFileInfo $libraryRootFileInfo) {
 		$info = [
 			"cakephp" => [

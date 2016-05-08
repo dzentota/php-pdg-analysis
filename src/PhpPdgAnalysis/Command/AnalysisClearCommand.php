@@ -6,12 +6,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ClearCommand extends Command {
+class AnalysisClearCommand extends Command {
 	private $cacheFile;
 
 	public function __construct($cacheFile) {
 		$this->cacheFile = $cacheFile;
-		parent::__construct("clear");
+		parent::__construct("analysis:clear");
 	}
 
 	protected function configure() {

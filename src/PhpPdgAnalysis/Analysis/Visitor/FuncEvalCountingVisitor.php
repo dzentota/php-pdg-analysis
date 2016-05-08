@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpPdgAnalysis\Analyser\Visitor;
+namespace PhpPdgAnalysis\Analysis\Visitor;
 
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class FuncEvalCountingVisitor extends NodeVisitorAbstract implements AnalysingVisitorInterface{
+class FuncEvalCountingVisitor extends NodeVisitorAbstract implements AnalysisVisitorInterface{
 	private $funcEvalCounts;
 	public $funcsWithEvalCount;
 	public $evalCount;

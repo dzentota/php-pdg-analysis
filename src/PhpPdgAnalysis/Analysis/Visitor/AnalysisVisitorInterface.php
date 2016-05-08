@@ -1,10 +1,10 @@
 <?php
 
-namespace PhpPdgAnalysis\Analyser\Visitor;
+namespace PhpPdgAnalysis\Analysis\Visitor;
 
 use PhpParser\NodeVisitor;
 
-interface AnalysingVisitorInterface extends NodeVisitor {
+interface AnalysisVisitorInterface extends NodeVisitor {
 	/**
 	 * @return array
 	 */

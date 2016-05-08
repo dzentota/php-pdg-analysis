@@ -1,8 +1,8 @@
 <?php
 
-namespace PhpPdgAnalysis\Analysis;
+namespace PhpPdgAnalysis\Table;
 
-interface AnalysisInterface {
+interface TableInterface {
 	/**
 	 * @param array $cache
 	 * @return array

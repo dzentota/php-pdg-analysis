@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpPdgAnalysis\Analyser\Visitor;
+namespace PhpPdgAnalysis\Analysis\Visitor;
 
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class FuncVarVarCountingVisitor extends NodeVisitorAbstract implements AnalysingVisitorInterface{
+class FuncVarVarCountingVisitor extends NodeVisitorAbstract implements AnalysisVisitorInterface{
 	private $funcVarVarCounts;
 	public $funcsWithVarVarCount;
 	public $varVarCount;

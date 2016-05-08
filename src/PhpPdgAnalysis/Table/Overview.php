@@ -1,15 +1,15 @@
 <?php
 
-namespace PhpPdgAnalysis\Analysis;
+namespace PhpPdgAnalysis\Table;
 
-class Overview implements AnalysisInterface {
+class Overview implements TableInterface {
 	public function getValues($cache) {
 		return [
 			$cache["name"] ?? "",
 			$cache["version"] ?? "",
-			$cache["date"] ?? "",
+			$cache["release"] ?? "",
 			$cache["php"] ?? "",
-			$cache["fileCount"] ?? "",
+			$cache["files"] ?? "",
 			$cache["sloc"] ?? "",
 			$cache["description"] ?? "",
 		];
