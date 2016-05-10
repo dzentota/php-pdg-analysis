@@ -11,9 +11,11 @@ use PhpPdgAnalysis\Analysis\Visitor\FuncPregEvalCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncGlobalCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncIncludeCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncVarVarCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\FuncExceptionCountingVisitor;
 use PhpPdgAnalysis\Table\Overview;
-use PhpPdgAnalysis\Table\FuncProblematicDataDependences;
-use PhpPdgAnalysis\Table\FuncAssignRef;
+use PhpPdgAnalysis\Table\FuncIncludes;
+use PhpPdgAnalysis\Table\FuncRefs;
+use PhpPdgAnalysis\Table\FuncEval;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
 use PhpPdgAnalysis\Command\AnalysisListCommand;
@@ -25,6 +27,7 @@ $cacheFile = __DIR__ . '/cache.json';
 $directoryAnalyses = [
 	"libraryInfo" => new LibraryInfo(),
 ];
+ksort($directoryAnalyses);
 $analysingVisitors = [
 	"func-count" => new FuncCountingVisitor(),
 	"func-assign-ref-count" => new FuncAssignRefCountingVisitor(),
@@ -33,12 +36,17 @@ $analysingVisitors = [
 	"func-global-count" => new FuncGlobalCountingVisitor(),
 	"func-include-count" => new FuncIncludeCountingVisitor(),
 	"func-var-var-count" => new FuncVarVarCountingVisitor(),
+	'func-exception-count' => new FuncExceptionCountingVisitor(),
 ];
+ksort($analysingVisitors);
 $tables = [
 	"overview" => new Overview(),
-	"func-problematic-data-deps" => new FuncProblematicDataDependences(),
-	"func-assign-ref" => new FuncAssignRef(),
+	"func-problematic-data-deps" => new FuncIncludes(),
+	"func-refs" => new FuncRefs(),
+	"func-eval" => new FuncEval(),
+	"func-includes" => new FuncIncludes(),
 ];
+ksort($tables);
 
 $application = new Application();
 $application->add(new AnalysisClearCommand($cacheFile));
