@@ -37,13 +37,16 @@ class FuncVarVarCountingVisitor extends NodeVisitorAbstract implements AnalysisV
 	}
 
 	public function getAnalysisResults() {
-		return [
-			"funcsWithVarVarCount" => $this->funcsWithVarVarCount,
-			"varVarCount" => $this->varVarCount
-		];
+		return array_combine($this->getSuppliedAnalysisKeys(), [
+			$this->funcsWithVarVarCount,
+			$this->varVarCount
+		]);
 	}
 
 	public function getSuppliedAnalysisKeys() {
-		return ["funcsWithVarVarCount", "varVarCount"];
+		return [
+			"funcsWithVarVarCount",
+			"varVarCount",
+		];
 	}
 }

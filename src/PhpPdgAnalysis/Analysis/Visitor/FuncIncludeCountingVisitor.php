@@ -37,13 +37,16 @@ class FuncIncludeCountingVisitor extends NodeVisitorAbstract implements Analysis
 	}
 
 	public function getAnalysisResults() {
-		return [
-			"funcsWithIncludeCount" => $this->funcsWithIncludeCount,
-			"includeCount" => $this->includeCount
-		];
+		return array_combine($this->getSuppliedAnalysisKeys(), [
+			$this->funcsWithIncludeCount,
+			$this->includeCount
+		]);
 	}
 
 	public function getSuppliedAnalysisKeys() {
-		return ["funcsWithIncludeCount", "includeCount"];
+		return [
+			"funcsWithIncludeCount",
+			"includeCount"
+		];
 	}
 }

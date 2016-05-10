@@ -25,6 +25,8 @@ class FuncCountingVisitor extends NodeVisitorAbstract implements AnalysisVisitor
 	}
 
 	public function getSuppliedAnalysisKeys() {
-		return ["funcCount"];
+		return [
+			"funcCount"
+		];
 	}
 }

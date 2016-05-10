@@ -21,19 +21,19 @@ class TablePrintCommand extends Command {
 
 	protected function configure() {
 		$this
-			->setDescription("Print an analysis for export to latex")
+			->setDescription("Print a table for export to latex")
 			->addArgument(
-				"analysis",
+				"table",
 				InputOption::VALUE_REQUIRED,
-				"Which analysis should be printed"
+				"Which table should be printed"
 			);
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$cache = json_decode(file_get_contents($this->cacheFile), true);
-		$analysis_name = $input->getArgument("analysis");
+		$analysis_name = $input->getArgument("table");
 		if (!isset($this->tables[$analysis_name])) {
-			throw new \RuntimeException("No such analysis");
+			throw new \RuntimeException("No such table");
 		}
 		$analysis = $this->tables[$analysis_name];
 		$sortColumns = $analysis->getSortColumns();

@@ -43,13 +43,16 @@ class FuncGlobalCountingVisitor extends NodeVisitorAbstract implements AnalysisV
 	}
 
 	public function getAnalysisResults() {
-		return [
-			"funcsWithAssignRefCount" => $this->funcsWithGlobalCount,
-			"globalCount" => $this->globalCount,
-		];
+		return array_combine($this->getSuppliedAnalysisKeys(), [
+			$this->funcsWithGlobalCount,
+			$this->globalCount,
+		]);
 	}
 
 	public function getSuppliedAnalysisKeys() {
-		return ["funcsWithAssignRefCount", "globalCount"];
+		return [
+			"funcsWithGlobalCount",
+			"globalCount",
+		];
 	}
 }
