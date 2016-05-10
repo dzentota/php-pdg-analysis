@@ -81,6 +81,10 @@ class FuncExceptionCountingVisitor extends NodeVisitorAbstract implements Analys
 				$this->funcsWithThrowCount++;
 				$this->throwCount += $funcThrowCount;
 			}
+			$funcLastTryStmtStack = array_shift($this->funcLastTryStmtStacks);
+			if (!empty($funcLastTryStmtStack)) {
+				throw new \LogicException("This should not happen.");
+			}
 			$funcThrowInTryCount = array_shift($this->funcThrowInTryCounts);
 			if ($funcThrowInTryCount > 0) {
 				$this->funcsWithThrowInTryCount++;
