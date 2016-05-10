@@ -19,6 +19,7 @@ class FuncExceptionCountingVisitor extends NodeVisitorAbstract implements Analys
 	private $catchCount;
 	private $tryWithFinallyCount;
 
+	private $funcLastTryStmtStacks;
 	private $funcThrowInTryCounts;
 	private $funcsWithThrowInTryCount;
 	private $throwInTryCount;
@@ -36,6 +37,7 @@ class FuncExceptionCountingVisitor extends NodeVisitorAbstract implements Analys
 		$this->catchCount = 0;
 		$this->tryWithFinallyCount = 0;
 
+		$this->funcLastTryStmtStacks = [[]];
 		$this->funcThrowInTryCounts = [0];
 		$this->funcsWithThrowInTryCount = 0;
 		$this->throwInTryCount = 0;
@@ -45,12 +47,11 @@ class FuncExceptionCountingVisitor extends NodeVisitorAbstract implements Analys
 		if ($node instanceof Node\FunctionLike) {
 			array_unshift($this->funcTryCounts, 0);
 			array_unshift($this->funcThrowCounts, 0);
+			array_unshift($this->funcLastTryStmtStacks, []);
 			array_unshift($this->funcThrowInTryCounts, 0);
 		}
-
 		if ($node instanceof TryCatch) {
 			$this->funcTryCounts[0]++;
-
 			if (!empty($node->catches)) {
 				$this->tryWithCatchCount++;
 				$this->catchCount += count($node->catches);
@@ -58,10 +59,11 @@ class FuncExceptionCountingVisitor extends NodeVisitorAbstract implements Analys
 			if ($node->finallyStmts !== null) {
 				$this->tryWithFinallyCount++;
 			}
+			array_unshift($this->funcLastTryStmtStacks[0], $node->stmts[count($node->stmts) - 1]);
 		}
 		if ($node instanceof Node\Stmt\Throw_) {
 			$this->funcThrowCounts[0]++;
-			if ($this->funcTryCounts[0] > 0) {
+			if (count($this->funcLastTryStmtStacks[0]) > 0) {
 				$this->funcThrowInTryCounts[0]++;
 			}
 		}
@@ -70,20 +72,23 @@ class FuncExceptionCountingVisitor extends NodeVisitorAbstract implements Analys
 	public function leaveNode(Node $node) {
 		if ($node instanceof Node\FunctionLike) {
 			$funcTryCount = array_shift($this->funcTryCounts);
-			if (count($funcTryCount) > 0) {
+			if ($funcTryCount > 0) {
 				$this->funcsWithTryCount++;
 				$this->tryCount += $funcTryCount;
 			}
 			$funcThrowCount = array_shift($this->funcThrowCounts);
-			if (count($funcThrowCount) > 0) {
+			if ($funcThrowCount > 0) {
 				$this->funcsWithThrowCount++;
 				$this->throwCount += $funcThrowCount;
 			}
 			$funcThrowInTryCount = array_shift($this->funcThrowInTryCounts);
-			if (count($funcThrowInTryCount) > 0) {
+			if ($funcThrowInTryCount > 0) {
 				$this->funcsWithThrowInTryCount++;
 				$this->throwInTryCount += $funcThrowInTryCount;
 			}
+		}
+		if (count($this->funcLastTryStmtStacks[0]) > 0 && $node === $this->funcLastTryStmtStacks[0][0]) {
+			array_shift($this->funcLastTryStmtStacks[0]);
 		}
 	}
 
