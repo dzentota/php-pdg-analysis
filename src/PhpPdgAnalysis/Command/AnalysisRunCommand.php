@@ -13,8 +13,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class AnalysisRunCommand extends Command {
-	const LIBRARY_ROOT = 'C:\Users\mwijngaard\Documents\Projects\_verification';
-
+	/** @var string  */
+	private $libraryRoot;
+	/** @var  string */
 	private $cacheFile;
 	/** @var DirectoryAnalysisInterface[] */
 	private $directoryAnalyses;
@@ -23,7 +24,15 @@ class AnalysisRunCommand extends Command {
 	/** @var Parser  */
 	private $parser;
 
-	public function __construct($cacheFile, array $directoryAnalyses = [], array $analysisVisitors = []) {
+	/**
+	 * AnalysisRunCommand constructor.
+	 * @param string $libraryRoot
+	 * @param string $cacheFile
+	 * @param array $directoryAnalyses
+	 * @param array $analysisVisitors
+	 */
+	public function __construct($libraryRoot, $cacheFile, array $directoryAnalyses = [], array $analysisVisitors = []) {
+		$this->libraryRoot = $libraryRoot;
 		$this->cacheFile = $cacheFile;
 		$this->directoryAnalyses = $directoryAnalyses;
 		$this->analysisVisitors = $analysisVisitors;
@@ -35,7 +44,7 @@ class AnalysisRunCommand extends Command {
 		$this
 			->setDescription("Update analysis cache")
 			->addOption(
-				"analyser",
+				"analysis",
 				"a",
 				InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
 				"Which analysers should be run (default all)",
@@ -50,10 +59,10 @@ class AnalysisRunCommand extends Command {
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output) {
-		$analyserNames = $input->getOption("analyser");
-		foreach ($analyserNames as $analyserName) {
-			if (!isset($this->directoryAnalyses[$analyserName]) && !isset($this->analysisVisitors[$analyserName])) {
-				throw new \RuntimeException("No such analysis `$analyserName`");
+		$analysisNames = $input->getOption("analysis");
+		foreach ($analysisNames as $analysisName) {
+			if (!isset($this->directoryAnalyses[$analysisName]) && !isset($this->analysisVisitors[$analysisName])) {
+				throw new \RuntimeException("No such analysis `$analysisName`");
 			}
 		}
 		try {
@@ -62,7 +71,7 @@ class AnalysisRunCommand extends Command {
 			$cache = [];
 		}
 
-		foreach (new \DirectoryIterator(self::LIBRARY_ROOT) as $libraryRootFileInfo) {
+		foreach (new \DirectoryIterator($this->libraryRoot) as $libraryRootFileInfo) {
 			if ($libraryRootFileInfo->isDir() && !$libraryRootFileInfo->isDot()) {
 				$filename = $libraryRootFileInfo->getFilename();
 				echo "analysing $filename\n";
@@ -72,26 +81,26 @@ class AnalysisRunCommand extends Command {
 				$force = $input->getOption('force');
 				$directoryAnalysesToRun = [];
 				$analysisVisitorsToRun = [];
-				foreach ($analyserNames as $analyserName) {
-					if (isset($this->directoryAnalyses[$analyserName])) {
-						$directoryAnalysis = $this->directoryAnalyses[$analyserName];
+				foreach ($analysisNames as $analysisName) {
+					if (isset($this->directoryAnalyses[$analysisName])) {
+						$directoryAnalysis = $this->directoryAnalyses[$analysisName];
 						if ($force || !$this->areAllKeysSet($directoryAnalysis->getSuppliedAnalysisKeys(), $pathCache)) {
 							$status = 'running';
-							$directoryAnalysesToRun[] = $directoryAnalysis;
+							$directoryAnalysesToRun[$analysisName] = $directoryAnalysis;
 						} else {
 							$status = 'in cache';
 						}
-						echo "director analysis `$analyserName`: $status\n";
+						echo "director analysis `$analysisName`: $status\n";
 					}
-					if (isset($this->analysisVisitors[$analyserName])) {
-						$analysisVisitor = $this->analysisVisitors[$analyserName];
+					if (isset($this->analysisVisitors[$analysisName])) {
+						$analysisVisitor = $this->analysisVisitors[$analysisName];
 						if ($force || !$this->areAllKeysSet($analysisVisitor->getSuppliedAnalysisKeys(), $pathCache)) {
 							$status = 'running';
-							$analysisVisitorsToRun[] = $analysisVisitor;
+							$analysisVisitorsToRun[$analysisName] = $analysisVisitor;
 						} else {
 							$status = 'in cache';
 						}
-						echo "analysis visitor `$analyserName`: $status\n";
+						echo "analysis visitor `$analysisName`: $status\n";
 					}
 				}
 
@@ -114,19 +123,23 @@ class AnalysisRunCommand extends Command {
 						$traverser->addVisitor($analysisVisitor);
 					}
 					echo "analysing files ";
+					$cumulativeVisitorAnalysisResults = [];
 					foreach (new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($libraryRootFileInfo->getRealPath())), "/.*\.php$/i") as $libraryFileInfo) {
 						try {
 							$nodes = $this->parser->parse(file_get_contents((string) $libraryFileInfo));
 							$traverser->traverse($nodes);
-							foreach ($analysisVisitorsToRun as $analysisVisitor) {
+							foreach ($analysisVisitorsToRun as $i => $analysisVisitor) {
 								foreach ($analysisVisitor->getAnalysisResults() as $key => $value) {
-									$results[$key] = isset($results[$key]) ? $results[$key] + $value : $value;
+									$cumulativeVisitorAnalysisResults[$i][$key] = isset($cumulativeVisitorAnalysisResults[$i][$key]) ? $cumulativeVisitorAnalysisResults[$i][$key] + $value : $value;
 								}
 							}
 							echo ".";
 						} catch (\Exception $e) {
 							echo "E";
 						}
+					}
+					foreach ($cumulativeVisitorAnalysisResults as $analysisName => $cumulativeVisitorAnalysisResult) {
+						$pathCache = array_merge($pathCache, $cumulativeVisitorAnalysisResult);
 					}
 					echo "\n";
 					echo "analysis visitors done\n";

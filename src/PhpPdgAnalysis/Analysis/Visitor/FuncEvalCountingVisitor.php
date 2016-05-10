@@ -24,23 +24,6 @@ class FuncEvalCountingVisitor extends NodeVisitorAbstract implements AnalysisVis
 		if ($node instanceof Node\Expr\Eval_) {
 			$this->funcEvalCounts[0]++;
 		}
-
-		if ($node instanceof Node\Expr\FuncCall) {
-			$name = $node->name;
-			if ($name instanceof Node\Name && $name->toString() === 'preg_replace') {
-				$pattern_arg_value = $node->args[0]->value;
-				if ($pattern_arg_value instanceof Node\Scalar\String_) {
-					$delimiter = $pattern_arg_value->value[0];
-					$quoted_delimeter = preg_quote($delimiter, '/');
-					if (preg_match("/$quoted_delimeter.*$quoted_delimeter(.*)/", $pattern_arg_value->value, $matches) === 1) {
-						$modifiers = $matches[1];
-						if (strpos($modifiers, 'e') !== false) {
-							$this->funcEvalCounts[0]++;
-						}
-					}
-				}
-			}
-		}
 	}
 
 	public function leaveNode(Node $node) {
@@ -54,13 +37,16 @@ class FuncEvalCountingVisitor extends NodeVisitorAbstract implements AnalysisVis
 	}
 
 	public function getAnalysisResults() {
-		return [
-			"funcsWithEvalCount" => $this->funcsWithEvalCount,
-			"evalCount" => $this->evalCount,
-		];
+		return array_combine($this->getSuppliedAnalysisKeys(), [
+			$this->funcsWithEvalCount,
+			$this->evalCount,
+		]);
 	}
 
 	public function getSuppliedAnalysisKeys() {
-		return ["funcsWithEvalCount", "evalCount"];
+		return [
+			"funcsWithEvalCount",
+			"evalCount",
+		];
 	}
 }

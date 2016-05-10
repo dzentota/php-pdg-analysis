@@ -5,7 +5,7 @@ namespace PhpPdgAnalysis\Analysis\Visitor;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class FunctionCountingVisitor extends NodeVisitorAbstract implements AnalysisVisitorInterface {
+class FuncCountingVisitor extends NodeVisitorAbstract implements AnalysisVisitorInterface {
 	private $funcCount;
 
 	public function beforeTraverse(array $nodes) {
@@ -19,9 +19,9 @@ class FunctionCountingVisitor extends NodeVisitorAbstract implements AnalysisVis
 	}
 
 	public function getAnalysisResults() {
-		return [
-			"funcCount" => $this->funcCount
-		];
+		return array_combine($this->getSuppliedAnalysisKeys(), [
+			$this->funcCount
+		]);
 	}
 
 	public function getSuppliedAnalysisKeys() {

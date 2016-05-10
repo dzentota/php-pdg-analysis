@@ -43,13 +43,16 @@ class FuncAssignRefCountingVisitor extends NodeVisitorAbstract implements Analys
 	}
 
 	public function getAnalysisResults() {
-		return [
-			"funcsWithAssignRefCount" => $this->funcsWithAssignRefCount,
-			"assignRefCount" => $this->assignRefCount,
-		];
+		return array_combine($this->getSuppliedAnalysisKeys(), [
+			$this->funcsWithAssignRefCount,
+			$this->assignRefCount,
+		]);
 	}
 
 	public function getSuppliedAnalysisKeys() {
-		return ["funcsWithAssignRefCount", "assignRefCount"];
+		return [
+			"funcsWithAssignRefCount",
+			"assignRefCount",
+		];
 	}
 }
