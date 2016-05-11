@@ -12,6 +12,15 @@ use PhpPdgAnalysis\Analysis\Visitor\FuncGlobalCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncIncludeCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncVarVarCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncExceptionCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\DuplicateNameCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\MagicMethodCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\ClassCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\TraitCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\YieldCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\ClosureCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\FilesWithTopLevelLogicCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\FileCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\CreateFunctionCountingVisitor;
 use PhpPdgAnalysis\Table\Overview;
 use PhpPdgAnalysis\Table\FuncIncludes;
 use PhpPdgAnalysis\Table\FuncRefs;
@@ -37,6 +46,15 @@ $analysingVisitors = [
 	"func-include-count" => new FuncIncludeCountingVisitor(),
 	"func-var-var-count" => new FuncVarVarCountingVisitor(),
 	'func-exception-count' => new FuncExceptionCountingVisitor(),
+	'duplicate-name-count' => new DuplicateNameCountingVisitor(),
+	'magic-method-count' => new MagicMethodCountingVisitor(),
+	'class-count' => new ClassCountingVisitor(),
+	'trait-count' => new TraitCountingVisitor(),
+	'yield-count' => new YieldCountingVisitor(),
+	'closure-count' => new ClosureCountingVisitor(),
+	'files-with-top-level-logic-count' => new FilesWithTopLevelLogicCountingVisitor(),
+	'file-count' => new FileCountingVisitor(),
+	'create-function-count' => new CreateFunctionCountingVisitor(),
 ];
 ksort($analysingVisitors);
 $tables = [
