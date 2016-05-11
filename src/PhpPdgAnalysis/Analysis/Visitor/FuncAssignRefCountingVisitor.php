@@ -3,14 +3,13 @@
 namespace PhpPdgAnalysis\Analysis\Visitor;
 
 use PhpParser\Node;
-use PhpParser\NodeVisitorAbstract;
 
-class FuncAssignRefCountingVisitor extends NodeVisitorAbstract implements AnalysisVisitorInterface {
+class FuncAssignRefCountingVisitor extends AbstractAnalysisVisitor {
 	private $funcAssignRefCounts;
 	public $funcsWithAssignRefCount;
 	public $assignRefCount;
 
-	public function beforeTraverse(array $nodes) {
+	public function enterLibrary() {
 		$this->funcAssignRefCounts = [0];
 		$this->funcsWithAssignRefCount = 0;
 		$this->assignRefCount = 0;

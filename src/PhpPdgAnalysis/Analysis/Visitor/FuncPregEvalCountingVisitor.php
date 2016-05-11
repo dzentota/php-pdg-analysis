@@ -3,14 +3,13 @@
 namespace PhpPdgAnalysis\Analysis\Visitor;
 
 use PhpParser\Node;
-use PhpParser\NodeVisitorAbstract;
 
-class FuncPregEvalCountingVisitor extends NodeVisitorAbstract implements AnalysisVisitorInterface{
+class FuncPregEvalCountingVisitor extends AbstractAnalysisVisitor {
 	private $funcPregEvalCounts;
 	public $funcsWithPregEvalCount;
 	public $pregEvalCount;
 
-	public function beforeTraverse(array $nodes) {
+	public function enterLibrary() {
 		$this->funcPregEvalCounts = [0];
 		$this->funcsWithPregEvalCount = 0;
 		$this->pregEvalCount = 0;

@@ -3,6 +3,7 @@
 namespace PhpPdgAnalysis\Command;
 
 use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use PhpPdgAnalysis\Analysis\DirectoryAnalysisInterface;
@@ -19,6 +20,8 @@ class AnalysisRunCommand extends Command {
 	private $cacheFile;
 	/** @var DirectoryAnalysisInterface[] */
 	private $directoryAnalyses;
+	/** @var NameResolver  */
+	private $nameResolvingVisitor;
 	/** @var AnalysisVisitorInterface[] */
 	private $analysisVisitors;
 	/** @var Parser  */
@@ -35,6 +38,7 @@ class AnalysisRunCommand extends Command {
 		$this->libraryRoot = $libraryRoot;
 		$this->cacheFile = $cacheFile;
 		$this->directoryAnalyses = $directoryAnalyses;
+		$this->nameResolvingVisitor = new NameResolver();
 		$this->analysisVisitors = $analysisVisitors;
 		$this->parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
 		parent::__construct("analysis:run");
@@ -119,27 +123,24 @@ class AnalysisRunCommand extends Command {
 				if (count($analysisVisitorsToRun) > 0) {
 					echo "running analysis visitors\n";
 					$traverser = new NodeTraverser();
+					$traverser->addVisitor($this->nameResolvingVisitor);
 					foreach ($analysisVisitorsToRun as $analysisVisitor) {
 						$traverser->addVisitor($analysisVisitor);
+						$analysisVisitor->enterLibrary();
 					}
 					echo "analysing files ";
-					$cumulativeVisitorAnalysisResults = [];
 					foreach (new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($libraryRootFileInfo->getRealPath())), "/.*\.php$/i") as $libraryFileInfo) {
 						try {
 							$nodes = $this->parser->parse(file_get_contents((string) $libraryFileInfo));
 							$traverser->traverse($nodes);
-							foreach ($analysisVisitorsToRun as $i => $analysisVisitor) {
-								foreach ($analysisVisitor->getAnalysisResults() as $key => $value) {
-									$cumulativeVisitorAnalysisResults[$i][$key] = isset($cumulativeVisitorAnalysisResults[$i][$key]) ? $cumulativeVisitorAnalysisResults[$i][$key] + $value : $value;
-								}
-							}
 							echo ".";
 						} catch (\Exception $e) {
 							echo "E";
 						}
 					}
-					foreach ($cumulativeVisitorAnalysisResults as $analysisName => $cumulativeVisitorAnalysisResult) {
-						$pathCache = array_merge($pathCache, $cumulativeVisitorAnalysisResult);
+					foreach ($analysisVisitorsToRun as $analysisVisitor) {
+						$analysisVisitor->leaveLibrary();
+						$pathCache = array_merge($pathCache, $analysisVisitor->getAnalysisResults());
 					}
 					echo "\n";
 					echo "analysis visitors done\n";

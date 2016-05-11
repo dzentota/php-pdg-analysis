@@ -3,14 +3,13 @@
 namespace PhpPdgAnalysis\Analysis\Visitor;
 
 use PhpParser\Node;
-use PhpParser\NodeVisitorAbstract;
 
-class FuncVarVarCountingVisitor extends NodeVisitorAbstract implements AnalysisVisitorInterface{
+class FuncVarVarCountingVisitor extends AbstractAnalysisVisitor {
 	private $funcVarVarCounts;
 	public $funcsWithVarVarCount;
 	public $varVarCount;
 
-	public function beforeTraverse(array $nodes) {
+	public function enterLibrary() {
 		$this->funcVarVarCounts = [0];
 		$this->funcsWithVarVarCount = 0;
 		$this->varVarCount = 0;

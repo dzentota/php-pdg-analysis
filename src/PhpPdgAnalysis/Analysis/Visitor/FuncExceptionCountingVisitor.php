@@ -4,9 +4,8 @@ namespace PhpPdgAnalysis\Analysis\Visitor;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\TryCatch;
-use PhpParser\NodeVisitorAbstract;
 
-class FuncExceptionCountingVisitor extends NodeVisitorAbstract implements AnalysisVisitorInterface {
+class FuncExceptionCountingVisitor extends AbstractAnalysisVisitor {
 	private $funcTryCounts;
 	private $funcsWithTryCount;
 	private $tryCount;
@@ -24,7 +23,7 @@ class FuncExceptionCountingVisitor extends NodeVisitorAbstract implements Analys
 	private $funcsWithThrowInTryCount;
 	private $throwInTryCount;
 
-	public function beforeTraverse(array $nodes) {
+	public function enterLibrary() {
 		$this->funcTryCounts = [0];
 		$this->funcsWithTryCount = 0;
 		$this->tryCount = 0;

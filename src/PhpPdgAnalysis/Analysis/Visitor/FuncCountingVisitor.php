@@ -3,12 +3,11 @@
 namespace PhpPdgAnalysis\Analysis\Visitor;
 
 use PhpParser\Node;
-use PhpParser\NodeVisitorAbstract;
 
-class FuncCountingVisitor extends NodeVisitorAbstract implements AnalysisVisitorInterface {
+class FuncCountingVisitor extends AbstractAnalysisVisitor {
 	private $funcCount;
 
-	public function beforeTraverse(array $nodes) {
+	public function enterLibrary() {
 		$this->funcCount = 0;
 	}
 
