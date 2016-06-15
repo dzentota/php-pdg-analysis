@@ -21,6 +21,7 @@ use PhpPdgAnalysis\Analysis\Visitor\ClosureCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FilesWithTopLevelLogicCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FileCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\CreateFunctionCountingVisitor;
+use PhpPdgAnalysis\Analysis\SystemDependence\CallCountingAnalysis;
 use PhpPdgAnalysis\Table\Overview;
 use PhpPdgAnalysis\Table\FuncIncludes;
 use PhpPdgAnalysis\Table\FuncRefs;
@@ -30,6 +31,9 @@ use PhpPdgAnalysis\Command\AnalysisRunCommand;
 use PhpPdgAnalysis\Command\AnalysisListCommand;
 use PhpPdgAnalysis\Command\TablePrintCommand;
 use PhpPdgAnalysis\Command\TableListCommand;
+use PhpPdgAnalysis\Command\SliceCommand;
+
+assert_options(ASSERT_BAIL, 1);
 
 $libraryRoot = 'C:\Users\mwijngaard\Documents\Projects\_verification';
 $cacheFile = __DIR__ . '/cache.json';
@@ -57,6 +61,10 @@ $analysingVisitors = [
 	'create-function-count' => new CreateFunctionCountingVisitor(),
 ];
 ksort($analysingVisitors);
+$systemAnalyses = [
+	'call-count' => new CallCountingAnalysis(),
+];
+ksort($systemAnalyses);
 $tables = [
 	"overview" => new Overview(),
 	"func-problematic-data-deps" => new FuncIncludes(),
@@ -68,8 +76,9 @@ ksort($tables);
 
 $application = new Application();
 $application->add(new AnalysisClearCommand($cacheFile));
-$application->add(new AnalysisRunCommand($libraryRoot, $cacheFile, $directoryAnalyses, $analysingVisitors));
+$application->add(new AnalysisRunCommand($libraryRoot, $cacheFile, $directoryAnalyses, $analysingVisitors, $systemAnalyses));
 $application->add(new AnalysisListCommand($directoryAnalyses, $analysingVisitors));
 $application->add(new TablePrintCommand($cacheFile, $tables));
 $application->add(new TableListCommand($tables));
+$application->add(new SliceCommand());
 $application->run();
