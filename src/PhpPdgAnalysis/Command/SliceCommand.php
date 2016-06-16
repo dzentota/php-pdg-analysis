@@ -3,20 +3,21 @@
 namespace PhpPdgAnalysis\Command;
 
 use PHPCfg\Parser;
+use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
+use PhpParser\PrettyPrinter\Standard;
 use PhpPdg\CfgBridge\Script as CfgBridgeScript;
 use PhpPdg\CfgBridge\System as CfgBridgeSystem;
+use PhpPdg\Graph\Edge;
 use PhpPdg\Graph\Graph;
 use PhpPdg\Graph\Node\NodeInterface;
 use PhpPdg\Graph\Slicing\Slicer;
 use PhpPdg\Graph\Slicing\SlicerInterface;
 use PhpPdg\ProgramDependence\Func;
 use PhpPdg\ProgramDependence\Node\OpNode;
-use PhpPdg\SystemDependence\Node\CallNode;
 use PhpPdg\SystemDependence\Node\FuncNode;
 use PhpPdg\SystemDependence\System;
-use PhpPdgAnalysis\Analysis\DirectoryAnalysisInterface;
-use PhpPdgAnalysis\Analysis\Visitor\AnalysisVisitorInterface;
+use PhpPdgAnalysis\Slicing\SlicingVisitor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -64,7 +65,7 @@ class SliceCommand extends Command {
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output) {
-		$inputPath = $input->getArgument('inputPath');
+		$inputPath = realpath($input->getArgument('inputPath'));
 		$outputPath = $input->getArgument('outputPath');
 		$sliceFilePath = realpath($input->getArgument('sliceFilePath'));
 		$sliceLineNr = (int) $input->getArgument('sliceLineNr');
@@ -121,12 +122,20 @@ class SliceCommand extends Command {
 			}
 		}
 		$sliced_sdg = new Graph();
-		$slicer->slice($sliced_sdg, $sdg_slicing_criterion, $sliced_sdg);
+		$slicer->slice($system->sdg, $sdg_slicing_criterion, $sliced_sdg);
 		foreach ($sliced_sdg->getNodes() as $node) {
-			if ($node instanceof CallNode) {
-				$containing_func = $node->getContainingFunc();
+			if ($node instanceof OpNode) {
+				/** @var Edge[] $contains_edges */
+				$contains_edges = $sliced_sdg->getEdges(null, $node, [
+					'type' => 'contains'
+				]);
+				assert(count($contains_edges) === 1);
+				/** @var FuncNode $containing_func_node */
+				$containing_func_node = $contains_edges[0]->getFromNode();
+				assert($containing_func_node instanceof FuncNode);
+				$containing_func = $containing_func_node->getFunc();
 				$func_slicing_criterion = isset($func_slicing_criterions[$containing_func]) ? $func_slicing_criterions[$containing_func] : [];
-				$func_slicing_criterion[] = $node->getCallOp();
+				$func_slicing_criterion[] = $node;
 				$func_slicing_criterions[$containing_func] = $func_slicing_criterion;
 			}
 		}
@@ -135,6 +144,25 @@ class SliceCommand extends Command {
 		$sliced_system->functions = $this->sliceFuncs($slicer, $system->functions, $func_slicing_criterions);
 		$sliced_system->methods = $this->sliceFuncs($slicer, $system->methods, $func_slicing_criterions);
 		$sliced_system->closures = $this->sliceFuncs($slicer, $system->closures, $func_slicing_criterions);
+
+		$file_line_nrs = [];
+		foreach ($sliced_system->getFuncs() as $func) {
+			foreach ($func->pdg->getNodes() as $node) {
+				if ($node instanceof OpNode) {
+					$file_line_nrs[$node->op->getFile()][$node->op->getLine()] = 1;
+				}
+			}
+		}
+
+		$ast_printer = new Standard();
+		foreach ($file_asts as $file_path => $ast) {
+			$slicing_visitor = new SlicingVisitor(isset($file_line_nrs[$file_path]) ? $file_line_nrs[$file_path] : []);
+			$node_traverser = new NodeTraverser();
+			$node_traverser->addVisitor($slicing_visitor);
+			$sliced_ast = $node_traverser->traverse($ast);
+			$output_file_path = str_replace($inputPath, $outputPath, $file_path);
+			file_put_contents($output_file_path, $ast_printer->prettyPrintFile($sliced_ast));
+		}
 	}
 
 	/**
