@@ -10,7 +10,7 @@ use PhpPdgAnalysis\Analysis\Visitor\FuncEvalCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncPregEvalCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncGlobalCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncIncludeCountingVisitor;
-use PhpPdgAnalysis\Analysis\Visitor\FuncVarVarCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\FuncVarFeatureCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncExceptionCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\DuplicateNameCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\MagicMethodCountingVisitor;
@@ -26,6 +26,7 @@ use PhpPdgAnalysis\Table\Overview;
 use PhpPdgAnalysis\Table\FuncIncludes;
 use PhpPdgAnalysis\Table\FuncRefs;
 use PhpPdgAnalysis\Table\FuncEval;
+use PhpPdgAnalysis\Table\FuncVarVar;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
 use PhpPdgAnalysis\Command\AnalysisListCommand;
@@ -43,18 +44,12 @@ $directoryAnalyses = [
 ksort($directoryAnalyses);
 $analysingVisitors = [
 	"func-count" => new FuncCountingVisitor(),
-	"func-assign-ref-count" => new FuncAssignRefCountingVisitor(),
 	"func-eval-count" => new FuncEvalCountingVisitor(),
-	"func-preg-eval-count" => new FuncPregEvalCountingVisitor(),
-	"func-global-count" => new FuncGlobalCountingVisitor(),
 	"func-include-count" => new FuncIncludeCountingVisitor(),
-	"func-var-var-count" => new FuncVarVarCountingVisitor(),
-	'func-exception-count' => new FuncExceptionCountingVisitor(),
+	"func-var-feature-count" => new FuncVarFeatureCountingVisitor(),
 	'duplicate-name-count' => new DuplicateNameCountingVisitor(),
 	'magic-method-count' => new MagicMethodCountingVisitor(),
 	'class-count' => new ClassCountingVisitor(),
-	'trait-count' => new TraitCountingVisitor(),
-	'yield-count' => new YieldCountingVisitor(),
 	'closure-count' => new ClosureCountingVisitor(),
 	'files-with-top-level-logic-count' => new FilesWithTopLevelLogicCountingVisitor(),
 	'file-count' => new FileCountingVisitor(),
@@ -67,10 +62,9 @@ $systemAnalyses = [
 ksort($systemAnalyses);
 $tables = [
 	"overview" => new Overview(),
-	"func-problematic-data-deps" => new FuncIncludes(),
-	"func-refs" => new FuncRefs(),
 	"func-eval" => new FuncEval(),
 	"func-includes" => new FuncIncludes(),
+	"func-var-var" => new FuncVarVar(),
 ];
 ksort($tables);
 
