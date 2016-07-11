@@ -39,7 +39,7 @@ assert_options(ASSERT_BAIL, 1);
 $libraryRoot = 'C:\Users\mwijngaard\Documents\Projects\_verification';
 $cacheFile = __DIR__ . '/cache.json';
 $directoryAnalyses = [
-	"libraryInfo" => new LibraryInfo(),
+	"library-info" => new LibraryInfo(),
 ];
 ksort($directoryAnalyses);
 $analysingVisitors = [
