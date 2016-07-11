@@ -4,27 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "73e48f5eb6e952ab466ba945ba0826d6",
-    "content-hash": "249b0169d7b9027a9fa1248a1307bd95",
+    "hash": "f35695270e38a222961ebdd9e1de137b",
+    "content-hash": "b79b4768bf1c83025214759271c02cc6",
     "packages": [
         {
             "name": "ircmaxell/php-cfg",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/ircmaxell/php-cfg.git",
-                "reference": "5a0f197008346bc04bc1f25130505dddf515d75f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ircmaxell/php-cfg/zipball/5a0f197008346bc04bc1f25130505dddf515d75f",
-                "reference": "5a0f197008346bc04bc1f25130505dddf515d75f",
-                "shasum": ""
+                "url": "https://github.com/mwijngaard/php-cfg.git",
+                "reference": "bda3dc3486ed67fb3bcd5e325504b3829a03cf2d"
             },
             "require": {
                 "nikic/php-parser": "^2.0",
                 "php": ">=5.5",
-                "phpdocumentor/graphviz": "dev-master"
+                "phpdocumentor/graphviz": "^1.0.4"
             },
             "require-dev": {
                 "fabpot/php-cs-fixer": "1.*",
@@ -36,7 +30,6 @@
                     "PHPCfg\\": "lib/PHPCfg/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD"
             ],
@@ -47,21 +40,15 @@
                 }
             ],
             "description": "A Control Flow Graph implementation for PHP",
-            "time": "2016-04-19 11:33:13"
+            "time": "2016-06-13 12:37:01"
         },
         {
             "name": "ircmaxell/php-types",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/ircmaxell/php-types.git",
-                "reference": "be5d106a891e0866836bf28be2ace485490097f2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ircmaxell/php-types/zipball/be5d106a891e0866836bf28be2ace485490097f2",
-                "reference": "be5d106a891e0866836bf28be2ace485490097f2",
-                "shasum": ""
+                "url": "https://github.com/mwijngaard/php-types",
+                "reference": "94d4f29812ce4beef91a1b6652cff959f708f7d1"
             },
             "require": {
                 "ircmaxell/php-cfg": "dev-master",
@@ -77,7 +64,6 @@
                     "PHPTypes\\": "lib/PHPTypes/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -88,7 +74,42 @@
                 }
             ],
             "description": "A PHP CFG Type Inference / Reconstruction Engine",
-            "time": "2016-03-17 21:47:00"
+            "time": "2016-06-14 12:25:35"
+        },
+        {
+            "name": "mwijngaard/php-pdg",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mwijngaard/php-pdg",
+                "reference": "c67a82fb70e6fd5f43e2dd6fa893f385576b5f43"
+            },
+            "require": {
+                "ircmaxell/php-cfg": "dev-master",
+                "ircmaxell/php-types": "dev-master",
+                "nikic/php-parser": "^2.0",
+                "php": ">=5.5"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpPdg\\": "src/PhpPdg/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Merijn Wijngaard",
+                    "email": "mwijngaard@gmail.com"
+                }
+            ],
+            "description": "Program Dependence Graph (PDG) library for PHP",
+            "time": "2016-06-16 14:46:53"
         },
         {
             "name": "nikic/php-parser",
@@ -143,7 +164,7 @@
         },
         {
             "name": "phpdocumentor/graphviz",
-            "version": "dev-master",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/GraphViz.git",
@@ -184,16 +205,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v3.0.5",
+            "version": "v3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "34a214710e0714b6efcf40ba3cd1e31373a97820"
+                "reference": "64a4d43b045f07055bb197650159769604cb2a92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/34a214710e0714b6efcf40ba3cd1e31373a97820",
-                "reference": "34a214710e0714b6efcf40ba3cd1e31373a97820",
+                "url": "https://api.github.com/repos/symfony/console/zipball/64a4d43b045f07055bb197650159769604cb2a92",
+                "reference": "64a4d43b045f07055bb197650159769604cb2a92",
                 "shasum": ""
             },
             "require": {
@@ -213,7 +234,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.0-dev"
+                    "dev-master": "3.1-dev"
                 }
             },
             "autoload": {
@@ -240,20 +261,20 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2016-04-28 09:48:42"
+            "time": "2016-06-14 11:18:07"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.1.1",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "1289d16209491b584839022f29257ad859b8532d"
+                "reference": "dff51f72b0706335131b00a7f49606168c582594"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/1289d16209491b584839022f29257ad859b8532d",
-                "reference": "1289d16209491b584839022f29257ad859b8532d",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/dff51f72b0706335131b00a7f49606168c582594",
+                "reference": "dff51f72b0706335131b00a7f49606168c582594",
                 "shasum": ""
             },
             "require": {
@@ -265,7 +286,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.1-dev"
+                    "dev-master": "1.2-dev"
                 }
             },
             "autoload": {
@@ -299,7 +320,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2016-01-20 09:13:37"
+            "time": "2016-05-18 14:26:46"
         }
     ],
     "packages-dev": [],
@@ -308,7 +329,7 @@
     "stability-flags": {
         "ircmaxell/php-cfg": 20,
         "ircmaxell/php-types": 20,
-        "phpdocumentor/graphviz": 20
+        "mwijngaard/php-pdg": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
