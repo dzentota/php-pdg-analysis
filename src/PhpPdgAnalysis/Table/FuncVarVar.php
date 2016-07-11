@@ -6,6 +6,7 @@ class FuncVarVar implements TableInterface {
 	public function getValues($cache) {
 		return [
 			$cache["name"] ?? "",
+			$cache['release'] ?? '',
 			$cache["php"] ?? "",
 			$cache["funcCount"] ?? "",
 			'',
