@@ -16,7 +16,7 @@ class DebugFactory implements FactoryInterface {
 	public function create(CfgBridgeSystem $cfg_system) {
 		$func_count = 0;
 		foreach ($cfg_system->getFilePaths() as $file_path) {
-			$func_count += 1 + count($cfg_system->getScript($file_path)->getScript()->functions);
+			$func_count += 1 + count($cfg_system->getScript($file_path)->functions);
 		}
 		echo sprintf("#%d - creating sdg for system with %d files and %d funcs\n", $this->message_count++, count($cfg_system->getFilePaths()), $func_count);
 		return $this->wrapped_factory->create($cfg_system);
