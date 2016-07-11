@@ -11,6 +11,10 @@ class FuncCountingVisitor extends AbstractAnalysisVisitor {
 		$this->funcCount = 0;
 	}
 
+	public function beforeTraverse(array $nodes) {
+		$this->funcCount++;
+	}
+
 	public function enterNode(Node $node) {
 		if ($node instanceof Node\FunctionLike) {
 			$this->funcCount++;
