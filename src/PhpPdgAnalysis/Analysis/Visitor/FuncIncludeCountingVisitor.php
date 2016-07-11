@@ -10,14 +10,18 @@ class FuncIncludeCountingVisitor extends AbstractAnalysisVisitor {
 	public $includeCount;
 
 	public function enterLibrary() {
-		$this->funcIncludeCounts = [0];
+		$this->funcIncludeCounts = [];
 		$this->funcsWithIncludeCount = 0;
 		$this->includeCount = 0;
 	}
 
+	public function beforeTraverse(array $nodes) {
+		$this->pushFunc();
+	}
+
 	public function enterNode(Node $node) {
 		if ($node instanceof Node\FunctionLike) {
-			array_unshift($this->funcIncludeCounts, 0);
+			$this->pushFunc();
 		}
 
 		if ($node instanceof Node\Expr\Include_) {
@@ -27,11 +31,23 @@ class FuncIncludeCountingVisitor extends AbstractAnalysisVisitor {
 
 	public function leaveNode(Node $node) {
 		if ($node instanceof Node\FunctionLike) {
-			$funcIncludeCount = array_shift($this->funcIncludeCounts);
-			if ($funcIncludeCount > 0) {
-				$this->funcsWithIncludeCount++;
-				$this->includeCount += $funcIncludeCount;
-			}
+			$this->popFunc();
+		}
+	}
+
+	public function afterTraverse(array $nodes) {
+		$this->popFunc();
+	}
+
+	private function pushFunc() {
+		array_unshift($this->funcIncludeCounts, 0);
+	}
+
+	private function popFunc() {
+		$funcIncludeCount = array_shift($this->funcIncludeCounts);
+		if ($funcIncludeCount > 0) {
+			$this->funcsWithIncludeCount++;
+			$this->includeCount += $funcIncludeCount;
 		}
 	}
 
