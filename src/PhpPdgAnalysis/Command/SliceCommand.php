@@ -2,25 +2,14 @@
 
 namespace PhpPdgAnalysis\Command;
 
-use PHPCfg\Parser;
-use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
 use PhpPdg\AstBridge\Slicing\Slicer;
 use PhpPdg\AstBridge\System as AstSystem;
 use PhpPdg\CfgBridge\SystemFactory;
-use PhpPdg\Graph\Edge;
-use PhpPdg\Graph\Graph;
-use PhpPdg\Graph\Node\NodeInterface;
-use PhpPdg\Graph\Slicing\SlicerInterface;
-use PhpPdg\ProgramDependence\Func;
-use PhpPdg\ProgramDependence\Node\OpNode;
-use PhpPdg\SystemDependence\Node\FuncNode;
-use PhpPdg\SystemDependence\System;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use PhpPdg\SystemDependence\Factory as PdgSystemFactory;
 use PhpPdg\SystemDependence\Slicing\BackwardSlicer as PdgBackwardSystemSlicer;
@@ -47,20 +36,14 @@ class SliceCommand extends Command {
 				'Output path for the sliced file or directory'
 			)
 			->addArgument(
+				'sliceFilePath',
+				InputArgument::REQUIRED,
+				'Slicing criterion filepath'
+			)
+			->addArgument(
 				'sliceLineNr',
 				InputArgument::REQUIRED,
 				'Slicing criterion line nr'
-			)
-			->addArgument(
-				'sliceFilePath',
-				InputArgument::OPTIONAL,
-				'Slicing criterion filepath'
-			)
-			->addOption(
-				'forward',
-				'f',
-				InputOption::VALUE_NONE,
-				'Generate a forward instead of a backward slice'
 			);
 	}
 
