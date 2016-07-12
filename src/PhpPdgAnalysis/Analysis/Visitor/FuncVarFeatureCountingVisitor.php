@@ -17,6 +17,10 @@ class FuncVarFeatureCountingVisitor extends AbstractAnalysisVisitor {
 	public $funcsWithVarMethodCallCount;
 	public $varMethodCallCount;
 
+	private $funcVarStaticMethodCallCounts;
+	public $funcsWithVarStaticMethodCallCount;
+	public $varStaticMethodCallCount;
+
 	private $funcVarPropertyFetchCounts;
 	public $funcsWithVarPropertyFetchCount;
 	public $varPropertyFetchCount;
@@ -38,6 +42,10 @@ class FuncVarFeatureCountingVisitor extends AbstractAnalysisVisitor {
 		$this->funcsWithVarMethodCallCount = 0;
 		$this->varMethodCallCount = 0;
 
+		$this->funcVarStaticMethodCallCounts = [];
+		$this->funcsWithVarStaticMethodCallCount = 0;
+		$this->varStaticMethodCallCount = 0;
+
 		$this->funcVarPropertyFetchCounts = [];
 		$this->funcsWithVarPropertyFetchCount = 0;
 		$this->varPropertyFetchCount = 0;
@@ -56,23 +64,27 @@ class FuncVarFeatureCountingVisitor extends AbstractAnalysisVisitor {
 			$this->pushFunc();
 		}
 
-		if ($node instanceof Node\Expr\Variable && $node->name instanceof Node\Expr\Variable) {
+		if ($node instanceof Node\Expr\Variable && $node->name instanceof Node\Expr) {
 			$this->funcVarVarCounts[0]++;
 		}
 
-		if ($node instanceof Node\Expr\FuncCall && $node->name instanceof Node\Expr\Variable) {
+		if ($node instanceof Node\Expr\FuncCall && $node->name instanceof Node\Expr) {
 			$this->funcVarFuncCallCounts[0]++;
 		}
 
-		if ($node instanceof Node\Expr\MethodCall && $node->name instanceof Node\Expr\Variable) {
+		if ($node instanceof Node\Expr\MethodCall && $node->name instanceof Node\Expr) {
 			$this->funcVarMethodCallCounts[0]++;
 		}
 
-		if ($node instanceof Node\Expr\PropertyFetch && $node->name instanceof Node\Expr\Variable) {
+		if ($node instanceof Node\Expr\StaticCall && $node->name instanceof Node\Expr) {
+			$this->funcVarStaticMethodCallCounts[0]++;
+		}
+
+		if ($node instanceof Node\Expr\PropertyFetch && $node->name instanceof Node\Expr) {
 			$this->funcVarPropertyFetchCounts[0]++;
 		}
 
-		if ($node instanceof Node\Expr\New_ && $node->class instanceof Node\Expr\Variable) {
+		if ($node instanceof Node\Expr\New_ && $node->class instanceof Node\Expr) {
 			$this->funcVarInstanceCounts[0]++;
 		}
 	}
@@ -91,6 +103,7 @@ class FuncVarFeatureCountingVisitor extends AbstractAnalysisVisitor {
 		array_unshift($this->funcVarVarCounts, 0);
 		array_unshift($this->funcVarFuncCallCounts, 0);
 		array_unshift($this->funcVarMethodCallCounts, 0);
+		array_unshift($this->funcVarStaticMethodCallCounts, 0);
 		array_unshift($this->funcVarPropertyFetchCounts, 0);
 		array_unshift($this->funcVarInstanceCounts, 0);
 	}
@@ -114,6 +127,12 @@ class FuncVarFeatureCountingVisitor extends AbstractAnalysisVisitor {
 			$this->funcsWithVarMethodCallCount++;
 		}
 
+		$funcVarStaticMethodCall = array_shift($this->funcVarStaticMethodCallCounts);
+		if ($funcVarStaticMethodCall > 0) {
+			$this->varStaticMethodCallCount += $funcVarStaticMethodCall;
+			$this->funcsWithVarStaticMethodCallCount++;
+		}
+
 		$funcVarPropertyFetchCount = array_shift($this->funcVarPropertyFetchCounts);
 		if ($funcVarPropertyFetchCount > 0) {
 			$this->varPropertyFetchCount += $funcVarPropertyFetchCount;
@@ -135,6 +154,8 @@ class FuncVarFeatureCountingVisitor extends AbstractAnalysisVisitor {
 			$this->varFuncCallCount,
 			$this->funcsWithVarMethodCallCount,
 			$this->varMethodCallCount,
+			$this->funcsWithVarStaticMethodCallCount,
+			$this->varStaticMethodCallCount,
 			$this->funcsWithVarPropertyFetchCount,
 			$this->varPropertyFetchCount,
 			$this->funcsWithVarInstanceCount,
@@ -150,6 +171,8 @@ class FuncVarFeatureCountingVisitor extends AbstractAnalysisVisitor {
 			"varFuncCallCount",
 			"funcsWithVarMethodCallCount",
 			"varMethodCallCount",
+			"funcsWithVarStaticMethodCallCount",
+			"varStaticMethodCallCount",
 			"funcsWithVarPropertyFetchCount",
 			"varPropertyFetchCount",
 			"funcsWithVarInstanceCount",
