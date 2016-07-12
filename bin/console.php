@@ -5,28 +5,25 @@ require __DIR__ . '/../vendor/autoload.php';
 use Symfony\Component\Console\Application;
 use PhpPdgAnalysis\Analysis\LibraryInfo;
 use PhpPdgAnalysis\Analysis\Visitor\FuncCountingVisitor;
-use PhpPdgAnalysis\Analysis\Visitor\FuncAssignRefCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncEvalCountingVisitor;
-use PhpPdgAnalysis\Analysis\Visitor\FuncPregEvalCountingVisitor;
-use PhpPdgAnalysis\Analysis\Visitor\FuncGlobalCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncIncludeCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncVarFeatureCountingVisitor;
-use PhpPdgAnalysis\Analysis\Visitor\FuncExceptionCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\DuplicateNameCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\MagicMethodCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\ClassCountingVisitor;
-use PhpPdgAnalysis\Analysis\Visitor\TraitCountingVisitor;
-use PhpPdgAnalysis\Analysis\Visitor\YieldCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\ClosureCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FilesWithTopLevelLogicCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FileCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\CreateFunctionCountingVisitor;
-use PhpPdgAnalysis\Analysis\SystemDependence\CallCountingAnalysis;
+use PhpPdgAnalysis\Analysis\Visitor\CallUserFuncCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\CallCountingVisitor;
+use PhpPdgAnalysis\Analysis\SystemDependence\ResolvedCallCountingAnalysis;
 use PhpPdgAnalysis\Table\Overview;
 use PhpPdgAnalysis\Table\FuncIncludes;
-use PhpPdgAnalysis\Table\FuncRefs;
 use PhpPdgAnalysis\Table\FuncEval;
 use PhpPdgAnalysis\Table\FuncVarVar;
+use PhpPdgAnalysis\Table\CallOverloading;
+use PhpPdgAnalysis\Table\DuplicateNames;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
 use PhpPdgAnalysis\Command\AnalysisListCommand;
@@ -54,10 +51,12 @@ $analysingVisitors = [
 	'files-with-top-level-logic-count' => new FilesWithTopLevelLogicCountingVisitor(),
 	'file-count' => new FileCountingVisitor(),
 	'create-function-count' => new CreateFunctionCountingVisitor(),
+	'call-user-func-count' => new CallUserFuncCountingVisitor(),
+	'call-count' => new CallCountingVisitor(),
 ];
 ksort($analysingVisitors);
 $systemAnalyses = [
-	'call-count' => new CallCountingAnalysis(),
+	'resolved-call-count' => new ResolvedCallCountingAnalysis(),
 ];
 ksort($systemAnalyses);
 $tables = [
@@ -65,6 +64,8 @@ $tables = [
 	"func-eval" => new FuncEval(),
 	"func-includes" => new FuncIncludes(),
 	"func-var-var" => new FuncVarVar(),
+	"call-overloading" => new CallOverloading(),
+	'duplicate-names' => new DuplicateNames(),
 ];
 ksort($tables);
 
