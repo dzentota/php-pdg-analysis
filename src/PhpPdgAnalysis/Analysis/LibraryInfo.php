@@ -28,7 +28,7 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"version" => "2.5.0",
 				"release" => "02-04-2016",
 				"php" => "5.4.0",
-				"sloc" => 85528,
+				"sloc" => 85591,
 				"description" => "ORM",
 				"autoloading" => "PSR-0",
 			],
@@ -40,6 +40,15 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 480861,
 				"description" => "CMS",
 				"autoloading" => "PSR-4",
+			],
+			"fabric" => [
+				"name" => "Fabric",
+				"varion" => "1.6",
+				"release" => "08-07-2016",
+				"php" => "5.5.0",
+				"sloc" => 57573,
+				"description" => "Application Framework",
+				"autoloading" => "PSR-0, Custom",
 			],
 			"gallery3" => [
 				"name" => "Gallery",
@@ -84,7 +93,7 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"php" => "5.3.3",
 				"sloc" => 400416,
 				"description" => "Wiki",
-				"autoloading" => 'PSR-0 & Custom',
+				"autoloading" => 'PSR-0, Custom',
 			],
 			"moodle" => [
 				"name" => "Moodle",
