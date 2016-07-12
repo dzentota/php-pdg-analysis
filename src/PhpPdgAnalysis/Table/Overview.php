@@ -9,7 +9,7 @@ class Overview implements TableInterface {
 			$cache["version"] ?? "",
 			$cache["release"] ?? "",
 			$cache["php"] ?? "",
-			$cache["files"] ?? "",
+			$cache["fileCount"] ?? "",
 			$cache["sloc"] ?? "",
 			$cache["description"] ?? "",
 		];
