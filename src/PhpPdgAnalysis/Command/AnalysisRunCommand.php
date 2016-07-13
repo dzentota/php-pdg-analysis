@@ -87,6 +87,13 @@ class AnalysisRunCommand extends Command {
 				array_merge(array_keys($this->directoryAnalyses), array_keys($this->analysisVisitors), array_keys($this->systemAnalyses))
 			)
 			->addOption(
+				"library-filter",
+				"l",
+				InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+				"Which libraries should be tested (matched case insensitively, default none)",
+				array()
+			)
+			->addOption(
 				"force",
 				"f",
 				InputOption::VALUE_NONE,
@@ -97,6 +104,7 @@ class AnalysisRunCommand extends Command {
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$time_start = microtime(true);
 		$analysisNames = $input->getOption("analysis");
+		$library_filters = $input->getOption('library-filter');
 		foreach ($analysisNames as $analysisName) {
 			if (!isset($this->directoryAnalyses[$analysisName]) && !isset($this->analysisVisitors[$analysisName]) && !isset($this->systemAnalyses[$analysisName])) {
 				throw new \RuntimeException("No such analysis `$analysisName`");
@@ -109,7 +117,10 @@ class AnalysisRunCommand extends Command {
 		}
 
 		foreach (new \DirectoryIterator($this->libraryRoot) as $libraryRootFileInfo) {
-			if ($libraryRootFileInfo->isDir() && !$libraryRootFileInfo->isDot() && stripos((string)$libraryRootFileInfo, 'pear') !== false) {
+			if ($libraryRootFileInfo->isDir() && !$libraryRootFileInfo->isDot()) {
+				if ($this->passesFilter(str_replace($this->libraryRoot, '', (string) $libraryRootFileInfo), $library_filters) === false) {
+					continue;
+				}
 				$scripts = [];
 
 				$filename = $libraryRootFileInfo->getFilename();
@@ -193,16 +204,17 @@ class AnalysisRunCommand extends Command {
 						$pathCache = array_merge($pathCache, $analysisVisitor->getAnalysisResults());
 					}
 					echo "\n";
-					echo "creating sdg\n";
-					$cfg_bridge_scripts = [];
-					foreach ($scripts as $file_path => $script) {
-						$cfg_bridge_scripts[] = new Script($file_path, $script);
-					}
-					$cfg_bridge_system = new System($cfg_bridge_scripts);
-					$system = $this->sdg_factory->create($cfg_bridge_system);
-					foreach ($systemAnalysesToRun as $systemAnalysis) {
-						$analysisResults = $systemAnalysis->analyse($system);
-						$pathCache = array_merge($pathCache, $analysisResults);
+					if (count($systemAnalysesToRun) > 0) {
+						echo "creating sdg\n";
+						$cfg_bridge_system = new System();
+						foreach ($scripts as $file_path => $script) {
+							$cfg_bridge_system->addScript($file_path, $script);
+						}
+						$system = $this->sdg_factory->create($cfg_bridge_system);
+						foreach ($systemAnalysesToRun as $systemAnalysis) {
+							$analysisResults = $systemAnalysis->analyse($system);
+							$pathCache = array_merge($pathCache, $analysisResults);
+						}
 					}
 				} else {
 					echo "file analysis not required\n";
@@ -217,6 +229,18 @@ class AnalysisRunCommand extends Command {
 		echo "all done\n";
 		echo 'runtime: ' . (microtime(true) - $time_start) . "s\n";
 		echo 'peak memory usage: ' . memory_get_peak_usage(true) / 1024 / 1024 . "M\n";
+	}
+
+	private function passesFilter($library_path, $library_filters) {
+		if (empty($library_filters) === true) {
+			return true;
+		}
+		foreach ($library_filters as $library_filter) {
+			if (stripos($library_path, $library_filter) !== false) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private function areAllKeysSet($keys, $arr) {
