@@ -10,12 +10,13 @@ class DuplicateNames implements TableInterface {
 			$cache['autoloading'] ?? '',
 			'',
 			$cache['classCount'] ?? '',
-			$cache['duplicateClassNameCount'] ?? '',
 			$cache['duplicateNamespacedClassNameCount'] ?? '',
+			isset($cache['duplicateNamespacedClassNameCount']) && isset($cache['classCount']) ? number_format($cache['duplicateNamespacedClassNameCount'] / $cache['classCount'] * 100, 2) : '',
 			'',
 			$cache['funcCount'] ?? '',
-			$cache['duplicateFuncNameCount'] ?? '',
 			$cache['duplicateNamespacedFuncNameCount'] ?? '',
+			isset($cache['duplicateNamespacedFuncNameCount']) && isset($cache['funcCount']) ? number_format($cache['duplicateNamespacedFuncNameCount'] / $cache['funcCount'] * 100, 2) : '',
+
 		];
 	}
 

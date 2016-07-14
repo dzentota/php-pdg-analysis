@@ -6,13 +6,17 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
-use PhpPdg\CfgBridge\Script;
 use PhpPdg\CfgBridge\System;
 use PhpPdg\ProgramDependence\Factory as PdgFactory;
 use PhpPdg\SystemDependence\Factory as SdgFactory;
 use PhpPdgAnalysis\Analysis\DirectoryAnalysisInterface;
 use PhpPdgAnalysis\Analysis\SystemDependence\SystemAnalysisInterface;
 use PhpPdgAnalysis\Analysis\Visitor\AnalysisVisitorInterface;
+use PhpPdg\AstBridge\Parser\FileCachingParser as AstFileCachingParser;
+use PhpPdg\AstBridge\Parser\MemoryCachingParser as AstMemoryCachingParser;
+use PhpPdg\AstBridge\Parser\WrappedParser as AstWrappedParser;
+use PhpPdg\CfgBridge\Parser\FileCachingParser as CfgFileCachingParser;
+use PhpPdg\CfgBridge\Parser\WrappedParser as CfgWrappedParser;
 use PhpPdgAnalysis\ProgramDependence\DebugFactory as PdgDebugFactory;
 use PhpPdgAnalysis\SystemDependence\DebugFactory as SdgDebugFactory;
 use Symfony\Component\Console\Command\Command;
@@ -31,6 +35,8 @@ class AnalysisRunCommand extends Command {
 	private $libraryRoot;
 	/** @var  string */
 	private $cacheFile;
+	/** @var  string */
+	private $cacheDir;
 	/** @var DirectoryAnalysisInterface[] */
 	private $directoryAnalyses;
 	/** @var NameResolver  */
@@ -39,10 +45,8 @@ class AnalysisRunCommand extends Command {
 	private $analysisVisitors;
 	/** @var SystemAnalysisInterface[] */
 	private $systemAnalyses;
-	/** @var Parser  */
-	private $parser;
-	/** @var \PHPCfg\Parser  */
-	private $cfg_parser;
+	/** @var AstMemoryCachingParser */
+	private $ast_memory_caching_parser;
 	/** @var  SdgFactory */
 	private $sdg_factory;
 
@@ -50,28 +54,32 @@ class AnalysisRunCommand extends Command {
 	 * AnalysisRunCommand constructor.
 	 * @param string $libraryRoot
 	 * @param string $cacheFile
+	 * @param string $cacheDir
 	 * @param DirectoryAnalysisInterface[] $directoryAnalyses
 	 * @param AnalysisVisitorInterface[] $analysisVisitors
 	 * @param SystemAnalysisInterface[] $systemAnalyses
 	 */
-	public function __construct($libraryRoot, $cacheFile, array $directoryAnalyses = [], array $analysisVisitors = [], array $systemAnalyses = []) {
+	public function __construct($libraryRoot, $cacheFile, $cacheDir, array $directoryAnalyses = [], array $analysisVisitors = [], array $systemAnalyses = []) {
 		$this->libraryRoot = $libraryRoot;
 		$this->cacheFile = $cacheFile;
+		$this->cacheDir = $cacheDir;
 		$this->directoryAnalyses = $directoryAnalyses;
 		$this->nameResolvingVisitor = new NameResolver();
 		$this->analysisVisitors = $analysisVisitors;
 		$this->systemAnalyses = $systemAnalyses;
-		$this->parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
-		$this->cfg_parser = new \PHPCfg\Parser($this->parser);
-		
+
+		$ast_string_parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+		$this->ast_memory_caching_parser = new AstMemoryCachingParser(new AstFileCachingParser($cacheDir . '/ast', new AstWrappedParser($ast_string_parser), true));
+
 		$graph_factory = new GraphFactory();
+		$cfg_file_caching_parser = new CfgFileCachingParser($cacheDir . '/cfg', new CfgWrappedParser($this->ast_memory_caching_parser), true);
 		$block_cfg_generator = new BlockCfgGenerator($graph_factory);
 		$block_cdg_generator = new BlockCdgGenerator($graph_factory);
 		$pdt_generator = new PdgGenerator($graph_factory);
 		$control_dependence_generator = new ControlDependenceGenerator($block_cfg_generator, $pdt_generator, $block_cdg_generator);
 		$data_dependence_generator = new DataDependenceGenerator();
 		$pdg_factory = new PdgFactory($graph_factory, $control_dependence_generator, $data_dependence_generator);
-		$this->sdg_factory = new SdgDebugFactory(new SdgFactory($graph_factory, new PdgDebugFactory($pdg_factory)));
+		$this->sdg_factory = new SdgDebugFactory(new SdgFactory($graph_factory, $cfg_file_caching_parser, new PdgDebugFactory($pdg_factory)));
 
 		parent::__construct("analysis:run");
 	}
@@ -90,7 +98,7 @@ class AnalysisRunCommand extends Command {
 				"library-filter",
 				"l",
 				InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-				"Which libraries should be tested (matched case insensitively, default none)",
+				"Filter which libraries should be analysed (matched case insensitively)",
 				array()
 			)
 			->addOption(
@@ -110,10 +118,12 @@ class AnalysisRunCommand extends Command {
 				throw new \RuntimeException("No such analysis `$analysisName`");
 			}
 		}
-		try {
+
+		if (file_exists($this->cacheFile) === true) {
 			$cache = json_decode(file_get_contents($this->cacheFile), true);
-		} catch (\Exception $e) {
-			$cache = [];
+			if (json_last_error() !== JSON_ERROR_NONE) {
+				$cache = [];
+			}
 		}
 
 		foreach (new \DirectoryIterator($this->libraryRoot) as $libraryRootFileInfo) {
@@ -121,12 +131,10 @@ class AnalysisRunCommand extends Command {
 				if ($this->passesFilter(str_replace($this->libraryRoot, '', (string) $libraryRootFileInfo), $library_filters) === false) {
 					continue;
 				}
-				$scripts = [];
 
-				$filename = $libraryRootFileInfo->getFilename();
-				echo "analysing $filename\n";
-				$fullPath = (string) $libraryRootFileInfo;
-				$pathCache = isset($cache[$fullPath]) ? $cache[$fullPath] : [];
+				$libraryname = $libraryRootFileInfo->getFilename();
+				echo "analysing $libraryname\n";
+				$library_cache = isset($cache[$libraryname]) ? $cache[$libraryname] : [];
 
 				$force = $input->getOption('force');
 				/** @var DirectoryAnalysisInterface[] $directoryAnalysesToRun */
@@ -138,7 +146,7 @@ class AnalysisRunCommand extends Command {
 				foreach ($analysisNames as $analysisName) {
 					if (isset($this->directoryAnalyses[$analysisName])) {
 						$directoryAnalysis = $this->directoryAnalyses[$analysisName];
-						if ($force || !$this->areAllKeysSet($directoryAnalysis->getSuppliedAnalysisKeys(), $pathCache)) {
+						if ($force || !$this->areAllKeysSet($directoryAnalysis->getSuppliedAnalysisKeys(), $library_cache)) {
 							$status = 'running';
 							$directoryAnalysesToRun[$analysisName] = $directoryAnalysis;
 						} else {
@@ -148,7 +156,7 @@ class AnalysisRunCommand extends Command {
 					}
 					if (isset($this->analysisVisitors[$analysisName])) {
 						$analysisVisitor = $this->analysisVisitors[$analysisName];
-						if ($force || !$this->areAllKeysSet($analysisVisitor->getSuppliedAnalysisKeys(), $pathCache)) {
+						if ($force || !$this->areAllKeysSet($analysisVisitor->getSuppliedAnalysisKeys(), $library_cache)) {
 							$status = 'running';
 							$analysisVisitorsToRun[$analysisName] = $analysisVisitor;
 						} else {
@@ -158,7 +166,7 @@ class AnalysisRunCommand extends Command {
 					}
 					if (isset($this->systemAnalyses[$analysisName])) {
 						$systemAnalysis = $this->systemAnalyses[$analysisName];
-						if ($force || !$this->areAllKeysSet($systemAnalysis->getSuppliedAnalysisKeys(), $pathCache)) {
+						if ($force || !$this->areAllKeysSet($systemAnalysis->getSuppliedAnalysisKeys(), $library_cache)) {
 							$status = 'running';
 							$systemAnalysesToRun[$analysisName] = $systemAnalysis;
 						} else {
@@ -173,7 +181,7 @@ class AnalysisRunCommand extends Command {
 					foreach ($directoryAnalysesToRun as $directoryAnalysis) {
 						$analysisResults = $directoryAnalysis->analyse($libraryRootFileInfo);
 						foreach ($analysisResults as $key => $value) {
-							$pathCache[$key] = $value;
+							$library_cache[$key] = $value;
 						}
 					}
 					echo "directory analyses done\n";
@@ -188,12 +196,14 @@ class AnalysisRunCommand extends Command {
 						$analysisVisitor->enterLibrary();
 					}
 					echo "analysing files ";
+					$filenames = [];
 					foreach (new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($libraryRootFileInfo->getRealPath())), "/.*\.php$/i") as $libraryFileInfo) {
+						$filenames[] = $filename = (string) $libraryFileInfo;
 						try {
-							$code = file_get_contents((string) $libraryFileInfo);
-							$nodes = $this->parser->parse($code);
-							$scripts[(string) $libraryFileInfo] = $script = $this->cfg_parser->parseAst($nodes, (string) $libraryFileInfo);
-							$traverser->traverse($nodes);
+							if (count($analysisVisitorsToRun) > 0) {
+								$nodes = $this->ast_memory_caching_parser->parse($filename);
+								$traverser->traverse($nodes);
+							}
 							echo ".";
 						} catch (\Exception $e) {
 							echo "E";
@@ -201,30 +211,27 @@ class AnalysisRunCommand extends Command {
 					}
 					foreach ($analysisVisitorsToRun as $analysisVisitor) {
 						$analysisVisitor->leaveLibrary();
-						$pathCache = array_merge($pathCache, $analysisVisitor->getAnalysisResults());
+						$library_cache = array_merge($library_cache, $analysisVisitor->getAnalysisResults());
 					}
 					echo "\n";
 					if (count($systemAnalysesToRun) > 0) {
 						echo "creating sdg\n";
-						$cfg_bridge_system = new System();
-						foreach ($scripts as $file_path => $script) {
-							$cfg_bridge_system->addScript($file_path, $script);
-						}
-						$system = $this->sdg_factory->create($cfg_bridge_system);
+						$system = $this->sdg_factory->create($filenames);
 						foreach ($systemAnalysesToRun as $systemAnalysis) {
 							$analysisResults = $systemAnalysis->analyse($system);
-							$pathCache = array_merge($pathCache, $analysisResults);
+							$library_cache = array_merge($library_cache, $analysisResults);
 						}
 					}
 				} else {
 					echo "file analysis not required\n";
 				}
 
-				$cache[$fullPath] = $pathCache;
+				$cache[$libraryname] = $library_cache;
 
 				file_put_contents($this->cacheFile, json_encode($cache, JSON_PRETTY_PRINT));
-				echo "$filename done " . json_encode($pathCache, JSON_PRETTY_PRINT) . "\n";
+				echo "$libraryname done " . json_encode($library_cache, JSON_PRETTY_PRINT) . "\n";
 			}
+			$this->ast_memory_caching_parser->clear();
 		}
 		echo "all done\n";
 		echo 'runtime: ' . (microtime(true) - $time_start) . "s\n";

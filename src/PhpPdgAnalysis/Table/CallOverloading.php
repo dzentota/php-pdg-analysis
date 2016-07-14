@@ -8,14 +8,13 @@ class CallOverloading implements TableInterface {
 			$cache["name"] ?? "",
 			$cache["release"] ?? "",
 			$cache["php"] ?? "",
+			$cache["classCount"] ?? "",
 			'',
-			$cache["methodCallCount"] ?? "",
 			$cache["__callCount"] ?? "",
-			isset($cache['__callCount']) && isset($cache['methodCallCount']) ? number_format($cache['__callCount'] / $cache['methodCallCount'] * 100, 2) : '',
+			isset($cache['__callCount']) && isset($cache['classCount']) ? number_format($cache['__callCount'] / $cache['classCount'] * 100, 2) : '',
 			'',
-			$cache['staticCallCount'] ?? "",
 			$cache["__callStaticCount"] ?? "",
-			isset($cache['__callStaticCount']) && isset($cache['staticCallCount']) ? number_format($cache['__callStaticCount'] / $cache['staticCallCount'] * 100, 2) : '',
+			isset($cache['__callStaticCount']) && isset($cache['classCount']) ? number_format($cache['__callStaticCount'] / $cache['classCount'] * 100, 2) : '',
 		];
 	}
 

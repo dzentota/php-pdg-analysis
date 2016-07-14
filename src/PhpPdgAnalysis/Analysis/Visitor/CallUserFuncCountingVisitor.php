@@ -7,20 +7,32 @@ use PhpParser\Node;
 class CallUserFuncCountingVisitor extends AbstractAnalysisVisitor {
 	private $callUserFuncCount;
 	private $callUserFuncArrayCount;
+	private $callUserMethodCount;
+	private $callUserMethodArrayCount;
 
 	public function enterLibrary() {
 		$this->callUserFuncCount = 0;
 		$this->callUserFuncArrayCount = 0;
+		$this->callUserMethodCount = 0;
+		$this->callUserMethodArrayCount = 0;
 	}
 
 	public function enterNode(Node $node) {
 		if ($node instanceof Node\Expr\FuncCall) {
 			if ($node->name instanceof Node\Name) {
-				if ($node->name->toString() === 'call_user_func') {
-					$this->callUserFuncCount++;
-				}
-				if ($node->name->toString() === 'call_user_func_array') {
-					$this->callUserFuncArrayCount++;
+				switch ($node->name->toString()) {
+					case 'call_user_func':
+						$this->callUserFuncCount++;
+						break;
+					case 'call_user_func_array':
+						$this->callUserFuncArrayCount++;
+						break;
+					case 'call_user_method':
+						$this->callUserMethodCount++;
+						break;
+					case 'call_user_method_array':
+						$this->callUserMethodArrayCount++;
+						break;
 				}
 			}
 		}
@@ -30,6 +42,8 @@ class CallUserFuncCountingVisitor extends AbstractAnalysisVisitor {
 		return array_combine($this->getSuppliedAnalysisKeys(), [
 			$this->callUserFuncCount,
 			$this->callUserFuncArrayCount,
+			$this->callUserMethodCount,
+			$this->callUserMethodArrayCount,
 		]);
 	}
 
@@ -37,6 +51,8 @@ class CallUserFuncCountingVisitor extends AbstractAnalysisVisitor {
 		return [
 			"callUserFuncCount",
 			"callUserFuncArrayCount",
+			"callUserMethodCount",
+			"callUserMethodArrayCount",
 		];
 	}
 }

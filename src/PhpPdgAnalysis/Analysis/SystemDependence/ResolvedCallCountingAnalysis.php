@@ -6,10 +6,11 @@ use PHPCfg\Op\Expr\FuncCall;
 use PHPCfg\Op\Expr\MethodCall;
 use PHPCfg\Op\Expr\NsFuncCall;
 use PHPCfg\Op\Expr\StaticCall;
+use PhpPdg\ProgramDependence\Node\OpNode;
 use PhpPdg\SystemDependence\Node\CallNode;
 use PhpPdg\SystemDependence\System;
 
-class CallCountingAnalysis implements SystemAnalysisInterface {
+class ResolvedCallCountingAnalysis implements SystemAnalysisInterface {
 	public function analyse(System $system) {
 		$callNodeCount = 0;
 		$resolvedCallNodeCount = 0;
@@ -23,13 +24,12 @@ class CallCountingAnalysis implements SystemAnalysisInterface {
 		$resolvedStaticCallNodeCount = 0;
 		$resolvedStaticCallCount = 0;
 
-
 		foreach ($system->sdg->getNodes() as $call_node) {
-			if ($call_node instanceof CallNode) {
+			if ($call_node instanceof OpNode) {
 				$callNodeCount += 1;
 				$call_edges = $system->sdg->getEdges($call_node);
 				$call_edge_count = count($call_edges);
-				$callOp = $call_node->getCallOp();
+				$callOp = $call_node->op;
 				if ($call_edge_count > 0) {
 					$resolvedCallNodeCount += 1;
 					if ($callOp instanceof FuncCall) {

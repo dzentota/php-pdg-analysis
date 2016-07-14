@@ -24,6 +24,7 @@ use PhpPdgAnalysis\Table\FuncEval;
 use PhpPdgAnalysis\Table\FuncVarVar;
 use PhpPdgAnalysis\Table\CallOverloading;
 use PhpPdgAnalysis\Table\DuplicateNames;
+use PhpPdgAnalysis\Table\DynamicCalls;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
 use PhpPdgAnalysis\Command\AnalysisListCommand;
@@ -32,9 +33,11 @@ use PhpPdgAnalysis\Command\TableListCommand;
 use PhpPdgAnalysis\Command\SliceCommand;
 
 assert_options(ASSERT_BAIL, 1);
+gc_disable();
 
 $libraryRoot = 'C:\Users\mwijngaard\Documents\Projects\_verification';
 $cacheFile = __DIR__ . '/cache.json';
+$cacheDir = __DIR__ . '/cache';
 $directoryAnalyses = [
 	"library-info" => new LibraryInfo(),
 ];
@@ -66,12 +69,13 @@ $tables = [
 	"func-var-var" => new FuncVarVar(),
 	"call-overloading" => new CallOverloading(),
 	'duplicate-names' => new DuplicateNames(),
+	'dynamic-calls' => new DynamicCalls(),
 ];
 ksort($tables);
 
 $application = new Application();
 $application->add(new AnalysisClearCommand($cacheFile));
-$application->add(new AnalysisRunCommand($libraryRoot, $cacheFile, $directoryAnalyses, $analysingVisitors, $systemAnalyses));
+$application->add(new AnalysisRunCommand($libraryRoot, $cacheFile, $cacheDir, $directoryAnalyses, $analysingVisitors, $systemAnalyses));
 $application->add(new AnalysisListCommand($directoryAnalyses, $analysingVisitors));
 $application->add(new TablePrintCommand($cacheFile, $tables));
 $application->add(new TableListCommand($tables));
