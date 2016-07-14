@@ -9,7 +9,7 @@ class FuncIncludes implements TableInterface {
 			$cache['release'] ?? '',
 			$cache['php'] ?? '',
 			$cache['autoloading'] ?? '',
-			$cache['funcCount'],
+			isset($cache["funcCount"]) && isset($cache['methodCount']) && isset($cache['closureCount']) && isset($cache['scriptCount']) ? $cache['funcCount'] + $cache['methodCount'] + $cache['closureCount'] + $cache['scriptCount'] : '',
 			'',
 			$cache['includeCount'] ?? '',
 			$cache['funcsWithIncludeCount'] ?? '',

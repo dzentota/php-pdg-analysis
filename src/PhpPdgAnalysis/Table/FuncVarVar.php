@@ -8,7 +8,7 @@ class FuncVarVar implements TableInterface {
 			$cache["name"] ?? "",
 			$cache['release'] ?? '',
 			$cache["php"] ?? "",
-			$cache["funcCount"] ?? "",
+			isset($cache["funcCount"]) && isset($cache['methodCount']) && isset($cache['closureCount']) && isset($cache['scriptCount']) ? $cache['funcCount'] + $cache['methodCount'] + $cache['closureCount'] + $cache['scriptCount'] : '',
 			'',
 			$cache["varVarCount"] ?? "",
 			$cache["funcsWithVarVarCount"] ?? "",
