@@ -3,7 +3,7 @@
 namespace PhpPdgAnalysis\Analysis;
 
 class LibraryInfo implements DirectoryAnalysisInterface {
-	public function analyse(\SplFileInfo $libraryRootFileInfo) {
+	public function analyse($librarydir) {
 		$info = [
 			"cakephp" => [
 				"name" => "CakePHP",
@@ -195,7 +195,7 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"autoloading" => 'PSR-0',
 			],
 		];
-		$filename = $libraryRootFileInfo->getFilename();
+		$filename = pathinfo($librarydir, PATHINFO_FILENAME);
 		return isset($info[$filename]) ? $info[$filename] : [];
 	}
 

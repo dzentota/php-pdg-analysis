@@ -4,10 +4,10 @@ namespace PhpPdgAnalysis\Analysis;
 
 interface DirectoryAnalysisInterface {
 	/**
-	 * @param \SplFileInfo $libraryRootFileInfo
+	 * @param string $librarydir
 	 * @return array
 	 */
-	public function analyse(\SplFileInfo $libraryRootFileInfo);
+	public function analyse($librarydir);
 
 	/**
 	 * @return string[]

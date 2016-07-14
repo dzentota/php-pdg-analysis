@@ -13,8 +13,8 @@ class DebugFactory implements FactoryInterface {
 		$this->wrapped_factory = $wrapped_factory;
 	}
 
-	public function create(array $filenames) {
-		echo sprintf("#%d - creating sdg for system with %d files\n", $this->message_count++, count($filenames));
-		return $this->wrapped_factory->create($filenames);
+	public function create($systemdir) {
+		echo sprintf("#%d - creating sdg for system dir `$systemdir`\n", $this->message_count++);
+		return $this->wrapped_factory->create($systemdir);
 	}
 }

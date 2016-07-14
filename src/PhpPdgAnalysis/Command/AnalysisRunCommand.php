@@ -6,7 +6,6 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
-use PhpPdg\CfgBridge\System;
 use PhpPdg\ProgramDependence\Factory as PdgFactory;
 use PhpPdg\SystemDependence\Factory as SdgFactory;
 use PhpPdgAnalysis\Analysis\DirectoryAnalysisInterface;
@@ -133,6 +132,7 @@ class AnalysisRunCommand extends Command {
 				}
 
 				$libraryname = $libraryRootFileInfo->getFilename();
+				$librarydir = $libraryRootFileInfo->getRealPath();
 				echo "analysing $libraryname\n";
 				$library_cache = isset($cache[$libraryname]) ? $cache[$libraryname] : [];
 
@@ -179,7 +179,7 @@ class AnalysisRunCommand extends Command {
 				if (count($directoryAnalysesToRun) > 0) {
 					echo "running directory analyses\n";
 					foreach ($directoryAnalysesToRun as $directoryAnalysis) {
-						$analysisResults = $directoryAnalysis->analyse($libraryRootFileInfo);
+						$analysisResults = $directoryAnalysis->analyse($librarydir);
 						foreach ($analysisResults as $key => $value) {
 							$library_cache[$key] = $value;
 						}
@@ -196,12 +196,11 @@ class AnalysisRunCommand extends Command {
 						$analysisVisitor->enterLibrary();
 					}
 					echo "analysing files ";
-					$filenames = [];
-					foreach (new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($libraryRootFileInfo->getRealPath())), "/.*\.php$/i") as $libraryFileInfo) {
-						$filenames[] = $filename = (string) $libraryFileInfo;
+					/** @var \SplFileInfo $libraryFileInfo */
+					foreach (new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($libraryRootFileInfo->getRealPath())), "/.*\\.php$/i") as $libraryFileInfo) {
 						try {
 							if (count($analysisVisitorsToRun) > 0) {
-								$nodes = $this->ast_memory_caching_parser->parse($filename);
+								$nodes = $this->ast_memory_caching_parser->parse($libraryFileInfo->getRealPath());
 								$traverser->traverse($nodes);
 							}
 							echo ".";
@@ -216,7 +215,7 @@ class AnalysisRunCommand extends Command {
 					echo "\n";
 					if (count($systemAnalysesToRun) > 0) {
 						echo "creating sdg\n";
-						$system = $this->sdg_factory->create($filenames);
+						$system = $this->sdg_factory->create($librarydir);
 						foreach ($systemAnalysesToRun as $systemAnalysis) {
 							$analysisResults = $systemAnalysis->analyse($system);
 							$library_cache = array_merge($library_cache, $analysisResults);
