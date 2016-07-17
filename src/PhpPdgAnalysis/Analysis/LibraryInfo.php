@@ -13,6 +13,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 139620,
 				"description" => "Application Framework",
 				"autoloading" => "PSR-4",
+				'hillsEval' => null,
+				"hillsIncludes" => 124,
+				'hillsVarVar' => 20,
 			],
 			"CodeIgniter" => [
 				"name" => "CodeIgniter",
@@ -22,6 +25,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 29770,
 				"description" => "Application Framework",
 				"autoloading" => '',
+				'hillsEval' => null,
+				"hillsIncludes" => 69,
+				'hillsVarVar' => 20,
 			],
 			"doctrine2" => [
 				"name" => "Doctrine ORM",
@@ -31,6 +37,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 85591,
 				"description" => "ORM",
 				"autoloading" => "PSR-0",
+				'hillsEval' => null,
+				"hillsIncludes" => 56,
+				'hillsVarVar' => 0,
 			],
 			"drupal" => [
 				"name" => "Drupal",
@@ -40,6 +49,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 480861,
 				"description" => "CMS",
 				"autoloading" => "PSR-4",
+				'hillsEval' => null,
+				"hillsIncludes" => 172,
+				'hillsVarVar' => 1,
 			],
 			"fabric" => [
 				"name" => "Fabric",
@@ -49,6 +61,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 57573,
 				"description" => "Application Framework",
 				"autoloading" => "PSR-0, Custom",
+				'hillsEval' => null,
+				'hillsIncludes' => null,
+				'hillsVarVar' => null,
 			],
 			"gallery3" => [
 				"name" => "Gallery",
@@ -58,6 +73,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 44758,
 				"description" => "Photo Management",
 				"autoloading" => 'Custom',
+				'hillsEval' => null,
+				"hillsIncludes" => 44,
+				'hillsVarVar' => 7,
 			],
 			"joomla-cms" => [
 				"name" => "Joomla",
@@ -67,6 +85,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 347423,
 				"description" => "CMS",
 				"autoloading" => 'Custom',
+				'hillsEval' => null,
+				"hillsIncludes" => 354,
+				'hillsVarVar' => 2,
 			],
 			"kohana" => [
 				"name" => "Kohana",
@@ -76,6 +97,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 30738,
 				"description" => "Application Framework",
 				"autoloading" => 'Custom',
+				'hillsEval' => null,
+				"hillsIncludes" => 52,
+				'hillsVarVar' => 7,
 			],
 			"magento2" => [
 				"name" => "Magento",
@@ -85,6 +109,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 1023247,
 				"description" => "Online Retail",
 				"autoloading" => 'PSR-0, PSR-4, Custom',
+				'hillsEval' => null,
+				'hillsIncludes' => null,
+				'hillsVarVar' => null,
 			],
 			"mediawiki-1.26.2" => [
 				"name" => "MediaWiki",
@@ -94,6 +121,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 400416,
 				"description" => "Wiki",
 				"autoloading" => 'PSR-0, Custom',
+				'hillsEval' => null,
+				"hillsIncludes" => 554,
+				'hillsVarVar' => 11,
 			],
 			"moodle" => [
 				"name" => "Moodle",
@@ -103,6 +133,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 1167840,
 				"description" => "Online Learning",
 				"autoloading" => 'Custom',
+				'hillsEval' => null,
+				"hillsIncludes" => 7744,
+				'hillsVarVar' => 39,
 			],
 			"oscommerce2" => [
 				"name" => "osCommerce",
@@ -112,6 +145,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 60003,
 				"description" => "Online Retail",
 				"autoloading" => '',
+				'hillsEval' => null,
+				"hillsIncludes" => 683,
+				'hillsVarVar' => 89,
 			],
 			"pear-core" => [
 				"name" => "PEAR",
@@ -121,6 +157,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 48872,
 				"description" => "Component Framework",
 				"autoloading" => '',
+				'hillsEval' => null,
+				"hillsIncludes" => 211,
+				'hillsVarVar' => 1,
 			],
 			"phpbb-app" => [
 				"name" => "phpBB",
@@ -130,6 +169,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 183293,
 				"description" => "Bulletin Board",
 				"autoloading" => 'Custom',
+				'hillsEval' => null,
+				"hillsIncludes" => 404,
+				'hillsVarVar' => 82,
 			],
 			"phpmyadmin" => [
 				"name" => "phpMyAdmin",
@@ -139,6 +181,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 202399,
 				"description" => "Database Administration",
 				"autoloading" => 'PSR-4, Custom',
+				'hillsEval' => null,
+				"hillsIncludes" => 819,
+				'hillsVarVar' => 112,
 			],
 			"silverstripe-framework" => [
 				"name" => "SilverStripe",
@@ -148,6 +193,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 183293,
 				"description" => "CMS",
 				"autoloading" => 'PSR-0, Custom',
+				'hillsEval' => null,
+				"hillsIncludes" => 373,
+				'hillsVarVar' => 3,
 			],
 			"smarty" => [
 				"name" => "Smarty",
@@ -157,6 +205,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 17282,
 				"description" => "Template Engine",
 				"autoloading" => 'Custom',
+				'hillsEval' => null,
+				"hillsIncludes" => 38,
+				'hillsVarVar' => 40,
 			],
 			"squirrelmail" => [
 				"name" => "Squirrel Mail",
@@ -166,6 +217,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 26045,
 				"description" => "Webmail",
 				"autoloading" => '',
+				'hillsEval' => null,
+				"hillsIncludes" => 426,
+				'hillsVarVar' => 24,
 			],
 			"symfony" => [
 				"name" => "Symfony",
@@ -175,6 +229,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 202757,
 				"description" => "Application Framework",
 				"autoloading" => 'PSR-4, Custom',
+				'hillsEval' => null,
+				"hillsIncludes" => 96,
+				'hillsVarVar' => 0,
 			],
 			"WordPress" => [
 				"name" => "WordPress",
@@ -184,6 +241,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 160039,
 				"description" => "Blog",
 				"autoloading" => 'Custom',
+				'hillsEval' => null,
+				"hillsIncludes" => 589,
+				'hillsVarVar' => 37,
 			],
 			"zf2" => [
 				"name" => "Zend Framework",
@@ -193,9 +253,12 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 				"sloc" => 169447,
 				"description" => "Application Framework",
 				"autoloading" => 'PSR-0',
+				'hillsEval' => null,
+				"hillsIncludes" => 12829,
+				'hillsVarVar' => 7,
 			],
 		];
-		$filename = pathinfo($librarydir, PATHINFO_FILENAME);
+		$filename = pathinfo($librarydir, PATHINFO_BASENAME);
 		return isset($info[$filename]) ? $info[$filename] : [];
 	}
 
@@ -208,6 +271,9 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 			"sloc",
 			"description",
 			"autoloading",
+			"hillsEval",
+			'hillsIncludes',
+			'hillsVarVar',
 		];
 	}
 }
