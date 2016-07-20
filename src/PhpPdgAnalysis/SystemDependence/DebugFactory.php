@@ -13,8 +13,13 @@ class DebugFactory implements FactoryInterface {
 		$this->wrapped_factory = $wrapped_factory;
 	}
 
-	public function create($systemdir) {
-		echo sprintf("#%d - creating sdg for system dir `$systemdir`\n", $this->message_count++);
-		return $this->wrapped_factory->create($systemdir);
+	public function create(CfgBridgeSystem $cfg_system) {
+		$filenames = $cfg_system->getFilenames();
+		$func_count = 0;
+		foreach ($filenames as $file_path) {
+			$func_count += 1 + count($cfg_system->getScript($file_path)->functions);
+		}
+		echo sprintf("#%d - creating sdg for system with %d files and %d funcs\n", $this->message_count++, count($filenames), $func_count);
+		return $this->wrapped_factory->create($cfg_system);
 	}
 }

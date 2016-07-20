@@ -6,8 +6,11 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
+use PhpPdg\ProgramDependence\DataDependence\CombiningGenerator;
+use PhpPdg\ProgramDependence\DataDependence\MaybeGenerator as MaybeDataDependenceGenerator;
 use PhpPdg\ProgramDependence\Factory as PdgFactory;
 use PhpPdg\SystemDependence\Factory as SdgFactory;
+use PhpPdg\SystemDependence\FilesystemFactory as SdgFilesystemFactory;
 use PhpPdgAnalysis\Analysis\DirectoryAnalysisInterface;
 use PhpPdgAnalysis\Analysis\SystemDependence\SystemAnalysisInterface;
 use PhpPdgAnalysis\Analysis\Visitor\AnalysisVisitorInterface;
@@ -18,6 +21,7 @@ use PhpPdg\CfgBridge\Parser\FileCachingParser as CfgFileCachingParser;
 use PhpPdg\CfgBridge\Parser\WrappedParser as CfgWrappedParser;
 use PhpPdgAnalysis\ProgramDependence\DebugFactory as PdgDebugFactory;
 use PhpPdgAnalysis\SystemDependence\DebugFactory as SdgDebugFactory;
+use PhpPdgAnalysis\SystemDependence\DebugFilesystemFactory as SdgDebugFilesystemFactory;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -76,9 +80,12 @@ class AnalysisRunCommand extends Command {
 		$block_cdg_generator = new BlockCdgGenerator($graph_factory);
 		$pdt_generator = new PdgGenerator($graph_factory);
 		$control_dependence_generator = new ControlDependenceGenerator($block_cfg_generator, $pdt_generator, $block_cdg_generator);
-		$data_dependence_generator = new DataDependenceGenerator();
+		$data_dependence_generator = new CombiningGenerator([
+			new DataDependenceGenerator(),
+			new MaybeDataDependenceGenerator()
+		]);
 		$pdg_factory = new PdgFactory($graph_factory, $control_dependence_generator, $data_dependence_generator);
-		$this->sdg_factory = new SdgDebugFactory(new SdgFactory($graph_factory, $cfg_file_caching_parser, new PdgDebugFactory($pdg_factory)));
+		$this->sdg_factory = new SdgDebugFilesystemFactory(new SdgFilesystemFactory($cfg_file_caching_parser, new SdgDebugFactory(new SdgFactory($graph_factory, new PdgDebugFactory($pdg_factory)))));
 
 		parent::__construct("analysis:run");
 	}
