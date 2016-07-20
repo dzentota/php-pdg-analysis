@@ -4,16 +4,19 @@ namespace PhpPdgAnalysis\Table;
 
 class FuncIncludes implements TableInterface {
 	public function getValues($cache) {
+		$totalFuncs = isset($cache["funcCount"]) && isset($cache['methodCount']) && isset($cache['closureCount']) && isset($cache['scriptCount']) ? $cache['funcCount'] + $cache['methodCount'] + $cache['closureCount'] + $cache['scriptCount'] : null;
+
 		return [
 			$cache['name'] ?? '',
 			$cache['release'] ?? '',
 			$cache['php'] ?? '',
 			$cache['autoloading'] ?? '',
-			isset($cache["funcCount"]) && isset($cache['methodCount']) && isset($cache['closureCount']) && isset($cache['scriptCount']) ? $cache['funcCount'] + $cache['methodCount'] + $cache['closureCount'] + $cache['scriptCount'] : '',
+			$totalFuncs ?? '',
 			'',
 			$cache['includeCount'] ?? '',
+			isset($cache['includeCount']) && isset($cache['hillsIncludes']) ? $cache['includeCount'] - $cache['hillsIncludes'] : '',
 			$cache['funcsWithIncludeCount'] ?? '',
-			isset($cache['funcsWithIncludeCount']) && isset($cache['funcCount']) ? number_format($cache['funcsWithIncludeCount'] / $cache['funcCount'] * 100, 2) : '',
+			isset($cache['funcsWithIncludeCount']) && isset($totalFuncs) ? number_format($cache['funcsWithIncludeCount'] / $totalFuncs * 100, 2) : '',
 		];
 	}
 

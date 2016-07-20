@@ -13,12 +13,13 @@ class FuncEval implements TableInterface {
 			$totalFuncs ?? '',
 			'',
 			$cache["evalCount"] ?? "",
+			isset($cache["evalCount"]) && isset($cache['hillsEval']) ? $cache['evalCount'] - $cache['hillsEval'] : "",
 			$cache["funcsWithEvalCount"] ?? "",
-			isset($cache['funcsWithEvalCount']) && isset($totalFuncs) ? number_format($cache['funcsWithEvalCount'] / $cache['funcCount'] * 100, 2) : '',
+			isset($cache['funcsWithEvalCount']) && isset($totalFuncs) ? number_format($cache['funcsWithEvalCount'] / $totalFuncs * 100, 2) : '',
 			'',
 			$cache["pregEvalCount"] ?? "",
 			$cache["funcsWithPregEvalCount"] ?? "",
-			isset($cache['funcsWithPregEvalCount']) && isset($totalFuncs) ? number_format($cache['funcsWithPregEvalCount'] / $cache['funcCount'] * 100, 2) : '',
+			isset($cache['funcsWithPregEvalCount']) && isset($totalFuncs) ? number_format($cache['funcsWithPregEvalCount'] / $totalFuncs * 100, 2) : '',
 		];
 	}
 
