@@ -27,7 +27,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 		$callEdgeToFuncCount = 0;
 		$callEdgeToBuiltinFuncCount = 0;
 		$callEdgeToUndefinedFuncCount = 0;
-		$callEdgeToUndefinedNsFuncCount = 0;
 
 		foreach ($system->sdg->getNodes() as $node) {
 			if ($node instanceof OpNode) {
@@ -96,7 +95,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 			$callEdgeToFuncCount,
 			$callEdgeToBuiltinFuncCount,
 			$callEdgeToUndefinedFuncCount,
-			$callEdgeToUndefinedNsFuncCount,
 		]);
 	}
 
@@ -114,7 +112,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 			'callEdgeToFuncCount',
 			'callEdgeToBuiltinFuncCount',
 			'callEdgeToUndefinedFuncCount',
-			'callEdgeToUndefinedNsFuncCount',
 		];
 	}
 }
