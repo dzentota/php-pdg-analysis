@@ -9,9 +9,11 @@ use PhpParser\ParserFactory;
 use PhpPdg\ProgramDependence\DataDependence\CombiningGenerator;
 use PhpPdg\ProgramDependence\DataDependence\MaybeGenerator as MaybeDataDependenceGenerator;
 use PhpPdg\ProgramDependence\Factory as PdgFactory;
+use PhpPdg\ProgramDependence\MemoryCachingFactory;
 use PhpPdg\SystemDependence\Factory as SdgFactory;
 use PhpPdg\SystemDependence\FilesystemFactory as SdgFilesystemFactory;
 use PhpPdgAnalysis\Analysis\DirectoryAnalysisInterface;
+use PhpPdgAnalysis\Analysis\ProgramDependence\FuncAnalysisInterface;
 use PhpPdgAnalysis\Analysis\SystemDependence\SystemAnalysisInterface;
 use PhpPdgAnalysis\Analysis\Visitor\AnalysisVisitorInterface;
 use PhpPdg\AstBridge\Parser\FileCachingParser as AstFileCachingParser;
@@ -46,11 +48,17 @@ class AnalysisRunCommand extends Command {
 	private $nameResolvingVisitor;
 	/** @var AnalysisVisitorInterface[] */
 	private $analysisVisitors;
+	/** @var  FuncAnalysisInterface[] */
+	private $funcAnalyses;
 	/** @var SystemAnalysisInterface[] */
 	private $systemAnalyses;
 	/** @var AstMemoryCachingParser */
-	private $ast_memory_caching_parser;
-	/** @var  SdgFactory */
+	private $memory_caching_ast_parser;
+	/** @var CfgFileCachingParser  */
+	private $cfg_parser;
+	/** @var  PdgDebugFactory */
+	private $memory_caching_pdg_factory;
+	/** @var  SdgDebugFilesystemFactory */
 	private $sdg_factory;
 
 	/**
@@ -60,22 +68,24 @@ class AnalysisRunCommand extends Command {
 	 * @param string $cacheDir
 	 * @param DirectoryAnalysisInterface[] $directoryAnalyses
 	 * @param AnalysisVisitorInterface[] $analysisVisitors
+	 * @param FuncAnalysisInterface[] $funcAnalyses
 	 * @param SystemAnalysisInterface[] $systemAnalyses
 	 */
-	public function __construct($libraryRoot, $cacheFile, $cacheDir, array $directoryAnalyses = [], array $analysisVisitors = [], array $systemAnalyses = []) {
+	public function __construct($libraryRoot, $cacheFile, $cacheDir, array $directoryAnalyses = [], array $analysisVisitors = [], array $funcAnalyses = [], array $systemAnalyses = []) {
 		$this->libraryRoot = $libraryRoot;
 		$this->cacheFile = $cacheFile;
 		$this->cacheDir = $cacheDir;
 		$this->directoryAnalyses = $directoryAnalyses;
 		$this->nameResolvingVisitor = new NameResolver();
 		$this->analysisVisitors = $analysisVisitors;
+		$this->funcAnalyses = $funcAnalyses;
 		$this->systemAnalyses = $systemAnalyses;
 
 		$ast_string_parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
-		$this->ast_memory_caching_parser = new AstMemoryCachingParser(new AstFileCachingParser($cacheDir . '/ast', new AstWrappedParser($ast_string_parser), true));
+		$this->memory_caching_ast_parser = new AstMemoryCachingParser(new AstFileCachingParser($cacheDir . '/ast', new AstWrappedParser($ast_string_parser), true));
 
+		$this->cfg_parser = new CfgFileCachingParser($cacheDir . '/cfg', new CfgWrappedParser($this->memory_caching_ast_parser), true);
 		$graph_factory = new GraphFactory();
-		$cfg_file_caching_parser = new CfgFileCachingParser($cacheDir . '/cfg', new CfgWrappedParser($this->ast_memory_caching_parser), true);
 		$block_cfg_generator = new BlockCfgGenerator($graph_factory);
 		$block_cdg_generator = new BlockCdgGenerator($graph_factory);
 		$pdt_generator = new PdgGenerator($graph_factory);
@@ -84,8 +94,8 @@ class AnalysisRunCommand extends Command {
 			new DataDependenceGenerator(),
 			new MaybeDataDependenceGenerator()
 		]);
-		$pdg_factory = new PdgFactory($graph_factory, $control_dependence_generator, $data_dependence_generator);
-		$this->sdg_factory = new SdgDebugFilesystemFactory(new SdgFilesystemFactory($cfg_file_caching_parser, new SdgDebugFactory(new SdgFactory($graph_factory, new PdgDebugFactory($pdg_factory)))));
+		$this->memory_caching_pdg_factory = new MemoryCachingFactory(new PdgDebugFactory(new PdgFactory($graph_factory, $control_dependence_generator, $data_dependence_generator)));
+		$this->sdg_factory = new SdgDebugFilesystemFactory(new SdgFilesystemFactory($this->cfg_parser, new SdgDebugFactory(new SdgFactory($graph_factory, $this->memory_caching_pdg_factory))));
 
 		parent::__construct("analysis:run");
 	}
@@ -120,7 +130,7 @@ class AnalysisRunCommand extends Command {
 		$analysisNames = $input->getOption("analysis");
 		$library_filters = $input->getOption('library-filter');
 		foreach ($analysisNames as $analysisName) {
-			if (!isset($this->directoryAnalyses[$analysisName]) && !isset($this->analysisVisitors[$analysisName]) && !isset($this->systemAnalyses[$analysisName])) {
+			if (!isset($this->directoryAnalyses[$analysisName]) && !isset($this->analysisVisitors[$analysisName]) && !isset($this->funcAnalyses[$analysisName]) && !isset($this->systemAnalyses[$analysisName])) {
 				throw new \RuntimeException("No such analysis `$analysisName`");
 			}
 		}
@@ -148,6 +158,8 @@ class AnalysisRunCommand extends Command {
 				$directoryAnalysesToRun = [];
 				/** @var AnalysisVisitorInterface[] $analysisVisitorsToRun */
 				$analysisVisitorsToRun = [];
+				/** @var FuncAnalysisInterface[] $funcAnalysesToRun */
+				$funcAnalysesToRun = [];
 				/** @var SystemAnalysisInterface[] $systemAnalysesToRun */
 				$systemAnalysesToRun = [];
 				foreach ($analysisNames as $analysisName) {
@@ -170,6 +182,16 @@ class AnalysisRunCommand extends Command {
 							$status = 'in cache';
 						}
 						echo "analysis visitor `$analysisName`: $status\n";
+					}
+					if (isset($this->funcAnalyses[$analysisName])) {
+						$funcAnalysis = $this->funcAnalyses[$analysisName];
+						if ($force || !$this->areAllKeysSet($funcAnalysis->getSuppliedAnalysisKeys(), $library_cache)) {
+							$status = 'running';
+							$funcAnalysesToRun[$analysisName] = $funcAnalysis;
+						} else {
+							$status = 'in cache';
+						}
+						echo "func analysis `$analysisName`: $status\n";
 					}
 					if (isset($this->systemAnalyses[$analysisName])) {
 						$systemAnalysis = $this->systemAnalyses[$analysisName];
@@ -195,20 +217,33 @@ class AnalysisRunCommand extends Command {
 				} else {
 					echo "no directory analyses to run\n";
 				}
-				if (count($analysisVisitorsToRun) > 0 || count($systemAnalysesToRun) > 0) {
+				if (count($analysisVisitorsToRun) > 0 || count($funcAnalysesToRun) > 0 || count($systemAnalysesToRun) > 0) {
 					$traverser = new NodeTraverser();
 					$traverser->addVisitor($this->nameResolvingVisitor);
 					foreach ($analysisVisitorsToRun as $analysisVisitor) {
 						$traverser->addVisitor($analysisVisitor);
 						$analysisVisitor->enterLibrary($libraryname);
 					}
+					foreach ($funcAnalysesToRun as $funcAnalysis) {
+						$funcAnalysis->enterLibrary($libraryname);
+					}
 					echo "analysing files ";
 					/** @var \SplFileInfo $libraryFileInfo */
 					foreach (new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($libraryRootFileInfo->getRealPath())), "/.*\\.php$/i") as $libraryFileInfo) {
+						$filename = $libraryFileInfo->getRealPath();
 						try {
 							if (count($analysisVisitorsToRun) > 0) {
-								$nodes = $this->ast_memory_caching_parser->parse($libraryFileInfo->getRealPath());
+								$nodes = $this->memory_caching_ast_parser->parse($filename);
 								$traverser->traverse($nodes);
+							}
+							if (count($funcAnalysesToRun) > 0) {
+								$script = $this->cfg_parser->parse($filename);
+								foreach (array_merge([$script->main], $script->functions) as $cfg_func) {
+									$pdg = $this->memory_caching_pdg_factory->create($cfg_func, $filename);
+									foreach ($funcAnalysesToRun as $funcAnalysis) {
+										$funcAnalysis->analyse($pdg);
+									}
+								}
 							}
 							echo ".";
 						} catch (\Exception $e) {
@@ -218,6 +253,10 @@ class AnalysisRunCommand extends Command {
 					foreach ($analysisVisitorsToRun as $analysisVisitor) {
 						$analysisVisitor->leaveLibrary($libraryname);
 						$library_cache = array_merge($library_cache, $analysisVisitor->getAnalysisResults());
+					}
+					foreach ($funcAnalysesToRun as $funcAnalysis) {
+						$funcAnalysis->leaveLibrary($libraryname);
+						$library_cache = array_merge($library_cache, $funcAnalysis->getAnalysisResults());
 					}
 					echo "\n";
 					if (count($systemAnalysesToRun) > 0) {
@@ -237,7 +276,8 @@ class AnalysisRunCommand extends Command {
 				file_put_contents($this->cacheFile, json_encode($cache, JSON_PRETTY_PRINT));
 				echo "$libraryname done " . json_encode($library_cache, JSON_PRETTY_PRINT) . "\n";
 			}
-			$this->ast_memory_caching_parser->clear();
+			$this->memory_caching_ast_parser->clear();
+			$this->memory_caching_pdg_factory->clear();
 		}
 		echo "all done\n";
 		echo 'runtime: ' . (microtime(true) - $time_start) . "s\n";
