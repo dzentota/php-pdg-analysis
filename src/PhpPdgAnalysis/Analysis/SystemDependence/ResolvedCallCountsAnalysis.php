@@ -8,10 +8,8 @@ use PHPCfg\Op\Expr\NsFuncCall;
 use PHPCfg\Op\Expr\StaticCall;
 use PhpPdg\ProgramDependence\Node\OpNode;
 use PhpPdg\SystemDependence\Node\BuiltinFuncNode;
-use PhpPdg\SystemDependence\Node\CallNode;
 use PhpPdg\SystemDependence\Node\FuncNode;
 use PhpPdg\SystemDependence\Node\UndefinedFuncNode;
-use PhpPdg\SystemDependence\Node\UndefinedNsFuncNode;
 use PhpPdg\SystemDependence\System;
 
 class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
@@ -79,8 +77,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 							$callEdgeToBuiltinFuncCount++;
 						} else if ($to_node instanceof UndefinedFuncNode) {
 							$callEdgeToUndefinedFuncCount++;
-						} else if ($to_node instanceof UndefinedNsFuncNode) {
-							$callEdgeToUndefinedNsFuncCount++;
 						}
 					}
 				}
