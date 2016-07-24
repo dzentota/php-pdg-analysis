@@ -5,9 +5,15 @@ namespace PhpPdgAnalysis\Analysis\Visitor;
 use PhpParser\NodeVisitor;
 
 interface AnalysisVisitorInterface extends NodeVisitor {
-	public function enterLibrary();
+	/**
+	 * @param string $libraryname
+	 */
+	public function enterLibrary($libraryname);
 
-	public function leaveLibrary();
+	/**
+	 * @param string $libraryname
+	 */
+	public function leaveLibrary($libraryname);
 
 	/**
 	 * @return array

@@ -200,7 +200,7 @@ class AnalysisRunCommand extends Command {
 					$traverser->addVisitor($this->nameResolvingVisitor);
 					foreach ($analysisVisitorsToRun as $analysisVisitor) {
 						$traverser->addVisitor($analysisVisitor);
-						$analysisVisitor->enterLibrary();
+						$analysisVisitor->enterLibrary($libraryname);
 					}
 					echo "analysing files ";
 					/** @var \SplFileInfo $libraryFileInfo */
@@ -216,7 +216,7 @@ class AnalysisRunCommand extends Command {
 						}
 					}
 					foreach ($analysisVisitorsToRun as $analysisVisitor) {
-						$analysisVisitor->leaveLibrary();
+						$analysisVisitor->leaveLibrary($libraryname);
 						$library_cache = array_merge($library_cache, $analysisVisitor->getAnalysisResults());
 					}
 					echo "\n";
