@@ -17,7 +17,9 @@ use PhpPdgAnalysis\Analysis\Visitor\FileCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\CreateFunctionCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\CallUserFuncCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\CallCountingVisitor;
-use PhpPdgAnalysis\Analysis\SystemDependence\ResolvedCallCountingAnalysis;
+use PhpPdgAnalysis\Analysis\ProgramDependence\DataDependenceCountsAnalysis;
+use PhpPdgAnalysis\Analysis\ProgramDependence\MaybeDataDependenceAnalysis;
+use PhpPdgAnalysis\Analysis\SystemDependence\ResolvedCallCountsAnalysis;
 use PhpPdgAnalysis\Table\Overview;
 use PhpPdgAnalysis\Table\FuncIncludes;
 use PhpPdgAnalysis\Table\FuncEval;
@@ -25,6 +27,7 @@ use PhpPdgAnalysis\Table\FuncVarVar;
 use PhpPdgAnalysis\Table\CallOverloading;
 use PhpPdgAnalysis\Table\DuplicateNames;
 use PhpPdgAnalysis\Table\DynamicCalls;
+use PhpPdgAnalysis\Table\ResolvedCalls;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
 use PhpPdgAnalysis\Command\AnalysisListCommand;
@@ -58,8 +61,13 @@ $analysingVisitors = [
 	'call-count' => new CallCountingVisitor(),
 ];
 ksort($analysingVisitors);
+$funcAnalyses = [
+	'data-dependence-counts' => new DataDependenceCountsAnalysis(),
+	'maybe-data-dependence-counts' => new MaybeDataDependenceAnalysis(),
+];
+ksort($funcAnalyses);
 $systemAnalyses = [
-	'resolved-call-count' => new ResolvedCallCountingAnalysis(),
+	'resolved-call-counts' => new ResolvedCallCountsAnalysis(),
 ];
 ksort($systemAnalyses);
 $tables = [
@@ -70,12 +78,13 @@ $tables = [
 	"call-overloading" => new CallOverloading(),
 	'duplicate-names' => new DuplicateNames(),
 	'dynamic-calls' => new DynamicCalls(),
+	'resolved-calls' => new ResolvedCalls(),
 ];
 ksort($tables);
 
 $application = new Application();
 $application->add(new AnalysisClearCommand($cacheFile));
-$application->add(new AnalysisRunCommand($libraryRoot, $cacheFile, $cacheDir, $directoryAnalyses, $analysingVisitors, $systemAnalyses));
+$application->add(new AnalysisRunCommand($libraryRoot, $cacheFile, $cacheDir, $directoryAnalyses, $analysingVisitors, $funcAnalyses, $systemAnalyses));
 $application->add(new AnalysisListCommand($directoryAnalyses, $analysingVisitors));
 $application->add(new TablePrintCommand($cacheFile, $tables));
 $application->add(new TableListCommand($tables));
