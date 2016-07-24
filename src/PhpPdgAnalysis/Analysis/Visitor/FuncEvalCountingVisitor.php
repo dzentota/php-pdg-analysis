@@ -13,7 +13,7 @@ class FuncEvalCountingVisitor extends AbstractAnalysisVisitor {
 	public $funcsWithPregEvalCount;
 	public $pregEvalCount;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->funcEvalCounts = [];
 		$this->funcsWithEvalCount = 0;
 		$this->evalCount = 0;

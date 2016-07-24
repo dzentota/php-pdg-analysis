@@ -7,7 +7,7 @@ use PhpParser\Node;
 class CreateFunctionCountingVisitor extends AbstractAnalysisVisitor {
 	private $createFunctionCount;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->createFunctionCount = 0;
 	}
 

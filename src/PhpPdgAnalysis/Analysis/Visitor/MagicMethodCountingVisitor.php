@@ -25,7 +25,7 @@ class MagicMethodCountingVisitor extends AbstractAnalysisVisitor {
 
 	private $magicMethodCounts;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->magicMethodCounts = array_fill_keys(array_map(function ($magicMethodName) {
 			return $magicMethodName;
 		}, $this->magicMethodNames), 0);

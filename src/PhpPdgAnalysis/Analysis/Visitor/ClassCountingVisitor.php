@@ -7,7 +7,7 @@ use PhpParser\Node;
 class ClassCountingVisitor extends AbstractAnalysisVisitor {
 	private $classCount;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->classCount = 0;
 	}
 

@@ -9,7 +9,7 @@ class FuncIncludeCountingVisitor extends AbstractAnalysisVisitor {
 	public $funcsWithIncludeCount;
 	public $includeCount;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->funcIncludeCounts = [];
 		$this->funcsWithIncludeCount = 0;
 		$this->includeCount = 0;

@@ -10,7 +10,7 @@ class CallUserFuncCountingVisitor extends AbstractAnalysisVisitor {
 	private $callUserMethodCount;
 	private $callUserMethodArrayCount;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->callUserFuncCount = 0;
 		$this->callUserFuncArrayCount = 0;
 		$this->callUserMethodCount = 0;

@@ -8,7 +8,7 @@ class ClosureCountingVisitor extends AbstractAnalysisVisitor {
 	private $closureCount;
 	private $closureWithUseCount;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->closureCount = 0;
 		$this->closureWithUseCount = 0;
 	}

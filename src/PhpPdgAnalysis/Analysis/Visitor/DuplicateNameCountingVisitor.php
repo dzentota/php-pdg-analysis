@@ -17,7 +17,7 @@ class DuplicateNameCountingVisitor extends AbstractAnalysisVisitor {
 	private $namespacedFuncNameCounts;
 	private $duplicateNamespacedFuncNameCount;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->classNameCounts = [];
 		$this->duplicateClassNameCount = 0;
 		$this->namespacedClassNameCounts = [];
@@ -28,7 +28,7 @@ class DuplicateNameCountingVisitor extends AbstractAnalysisVisitor {
 		$this->duplicateNamespacedFuncNameCount = 0;
 	}
 
-	public function leaveLibrary() {
+	public function leaveLibrary($libraryname) {
 		foreach ($this->classNameCounts as $ct) {
 			if ($ct > 1) {
 				$this->duplicateClassNameCount++;

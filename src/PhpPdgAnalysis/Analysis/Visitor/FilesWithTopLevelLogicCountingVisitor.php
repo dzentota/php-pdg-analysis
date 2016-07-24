@@ -13,7 +13,7 @@ use PhpParser\Node\Stmt\Use_;
 class FilesWithTopLevelLogicCountingVisitor extends AbstractAnalysisVisitor {
 	private $filesWithTopLevelLogicCount;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->filesWithTopLevelLogicCount = 0;
 	}
 

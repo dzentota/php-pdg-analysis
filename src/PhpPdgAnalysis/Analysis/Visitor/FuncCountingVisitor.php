@@ -10,7 +10,7 @@ class FuncCountingVisitor extends AbstractAnalysisVisitor {
 	private $closureCount;
 	private $scriptCount;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->funcCount = 0;
 		$this->classMethodCount = 0;
 		$this->closureCount = 0;

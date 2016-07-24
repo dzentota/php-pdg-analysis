@@ -13,7 +13,7 @@ use PhpParser\Node\Stmt\Use_;
 class FileCountingVisitor extends AbstractAnalysisVisitor {
 	private $fileCount;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->fileCount = 0;
 	}
 

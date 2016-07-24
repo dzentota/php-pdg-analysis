@@ -9,7 +9,7 @@ class CallCountingVisitor extends AbstractAnalysisVisitor {
 	private $methodCallCount;
 	private $staticCallCount;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->funcCallCount= 0;
 		$this->methodCallCount = 0;
 		$this->staticCallCount = 0;

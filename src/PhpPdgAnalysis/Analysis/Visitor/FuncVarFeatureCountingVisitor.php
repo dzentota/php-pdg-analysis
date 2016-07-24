@@ -29,7 +29,7 @@ class FuncVarFeatureCountingVisitor extends AbstractAnalysisVisitor {
 	public $funcsWithVarInstanceCount;
 	public $varInstanceCount;
 
-	public function enterLibrary() {
+	public function enterLibrary($libraryname) {
 		$this->funcVarVarCounts = [];
 		$this->funcsWithVarVarCount = 0;
 		$this->varVarCount = 0;
