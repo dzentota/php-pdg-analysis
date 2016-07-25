@@ -11,6 +11,7 @@ use PhpPdg\SystemDependence\Node\BuiltinFuncNode;
 use PhpPdg\SystemDependence\Node\FuncNode;
 use PhpPdg\SystemDependence\Node\UndefinedFuncNode;
 use PhpPdg\SystemDependence\System;
+use PHPTypes\Type;
 
 class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 	public function analyse(System $system) {
@@ -22,6 +23,7 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 		$funcCallEdgeToUndefinedFuncCount = 0;
 
 		$methodCallNodes = 0;
+		$typedMethodCallNodes = 0;
 		$resolvedMethodCallNodeCount = 0;
 		$resolvedMethodCallEdgeCounts = [];
 		$methodCallEdgeToFuncCount = 0;
@@ -58,6 +60,15 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 					}
 				} else if ($op instanceof MethodCall || $op instanceof StaticCall) {
 					$methodCallNodes++;
+					if ($op instanceof MethodCall) {
+						if (is_object($op->var->type) && $op->var->type instanceof Type && $this->typeResolvesToClass($op->var->type)) {
+							$typedMethodCallNodes++;
+						}
+					} else if ($op instanceof StaticCall) {
+						if (is_object($op->class->type) && $op->class->type instanceof Type && $this->typeResolvesToClass($op->class->type)) {
+							$typedMethodCallNodes++;
+						}
+					}
 					if ($call_edge_count > 0) {
 						$resolvedMethodCallNodeCount++;
 						if (isset($resolvedMethodCallEdgeCounts[$call_edge_count])) {
@@ -89,6 +100,7 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 			$funcCallEdgeToUndefinedFuncCount,
 
 			$methodCallNodes,
+			$typedMethodCallNodes,
 			$resolvedMethodCallNodeCount,
 			$resolvedMethodCallEdgeCounts,
 			$methodCallEdgeToFuncCount,
@@ -107,11 +119,28 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 			'funcCallEdgeToUndefinedFuncCount',
 
 			'methodCallNodes',
+			'typedMethodCallNodes',
 			'resolvedMethodCallNodeCount',
 			'resolvedMethodCallEdgeCounts',
 			'methodCallEdgeToFuncCount',
 			'methodCallEdgeToBuiltinFuncCount',
 			'methodCallEdgeToUndefinedFuncCount',
 		];
+	}
+
+	private function typeResolvesToClass(Type $type) {
+		switch ($type->type) {
+			case Type::TYPE_STRING:
+				return true;
+			case Type::TYPE_OBJECT:
+				return $type->userType !== null;
+			case Type::TYPE_UNION:
+				foreach ($type->subTypes as $subType) {
+					if ($this->typeResolvesToClass($subType) === true) {
+						return true;
+					}
+				}
+		}
+		return false;
 	}
 }
