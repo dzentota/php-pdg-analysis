@@ -76,8 +76,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 							}
 						}
 					}
-				} else {
-					throw new \LogicException('Unknown call op `' . $op->getType() . '`');
 				}
 			}
 		}
