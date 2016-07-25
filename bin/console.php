@@ -20,6 +20,7 @@ use PhpPdgAnalysis\Analysis\Visitor\CallCountingVisitor;
 use PhpPdgAnalysis\Analysis\ProgramDependence\DataDependenceCountsAnalysis;
 use PhpPdgAnalysis\Analysis\ProgramDependence\MaybeDataDependenceAnalysis;
 use PhpPdgAnalysis\Analysis\SystemDependence\ResolvedCallCountsAnalysis;
+use PhpPdgAnalysis\Analysis\SystemDependence\OverloadingCountsAnalysis;
 use PhpPdgAnalysis\Table\Overview;
 use PhpPdgAnalysis\Table\FuncIncludes;
 use PhpPdgAnalysis\Table\FuncEval;
@@ -27,7 +28,8 @@ use PhpPdgAnalysis\Table\FuncVarVar;
 use PhpPdgAnalysis\Table\CallOverloading;
 use PhpPdgAnalysis\Table\DuplicateNames;
 use PhpPdgAnalysis\Table\DynamicCalls;
-use PhpPdgAnalysis\Table\ResolvedCalls;
+use PhpPdgAnalysis\Table\ResolvedFunctionCalls;
+use PhpPdgAnalysis\Table\ResolvedMethodCalls;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
 use PhpPdgAnalysis\Command\AnalysisListCommand;
@@ -68,6 +70,7 @@ $funcAnalyses = [
 ksort($funcAnalyses);
 $systemAnalyses = [
 	'resolved-call-counts' => new ResolvedCallCountsAnalysis(),
+	'overloading-counts' => new OverloadingCountsAnalysis(),
 ];
 ksort($systemAnalyses);
 $tables = [
@@ -78,7 +81,8 @@ $tables = [
 	"call-overloading" => new CallOverloading(),
 	'duplicate-names' => new DuplicateNames(),
 	'dynamic-calls' => new DynamicCalls(),
-	'resolved-calls' => new ResolvedCalls(),
+	'resolved-function-calls' => new ResolvedFunctionCalls(),
+	'resolved-method-calls' => new ResolvedMethodCalls(),
 ];
 ksort($tables);
 

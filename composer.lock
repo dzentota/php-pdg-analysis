@@ -82,7 +82,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mwijngaard/php-pdg",
-                "reference": "237f3abf4429cb1255c00aad832d5d64d7ee5a48"
+                "reference": "52e5d13dcef2ceb10b38e4da7e0b5716b17c151f"
             },
             "require": {
                 "ircmaxell/php-cfg": "dev-master",
@@ -109,7 +109,7 @@
                 }
             ],
             "description": "Program Dependence Graph (PDG) library for PHP",
-            "time": "2016-07-24 14:53:38"
+            "time": "2016-07-25 12:52:42"
         },
         {
             "name": "nikic/php-parser",

@@ -14,19 +14,20 @@ use PhpPdg\SystemDependence\System;
 
 class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 	public function analyse(System $system) {
-		$resolvedCallNodeCount = 0;
+		$funcCallNodes = 0;
 		$resolvedFuncCallNodeCount = 0;
 		$resolvedFuncCallEdgeCounts = [];
-		$resolvedNsFuncCallNodeCount = 0;
-		$resolvedNsFuncCallEdgeCounts = [];
+		$funcCallEdgeToFuncCount = 0;
+		$funcCallEdgeToBuiltinFuncCount = 0;
+		$funcCallEdgeToUndefinedFuncCount = 0;
+
+		$methodCallNodes = 0;
 		$resolvedMethodCallNodeCount = 0;
 		$resolvedMethodCallEdgeCounts = [];
-		$resolvedStaticCallNodeCount = 0;
-		$resolvedStaticCallEdgeCounts = [];
+		$methodCallEdgeToFuncCount = 0;
+		$methodCallEdgeToBuiltinFuncCount = 0;
+		$methodCallEdgeToUndefinedFuncCount = 0;
 
-		$callEdgeToFuncCount = 0;
-		$callEdgeToBuiltinFuncCount = 0;
-		$callEdgeToUndefinedFuncCount = 0;
 
 		foreach ($system->sdg->getNodes() as $node) {
 			if ($node instanceof OpNode) {
@@ -34,84 +35,85 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 				$call_edges = $system->sdg->getEdges($node, null, ['type' => 'call']);
 				$call_edge_count = count($call_edges);
 
-				if ($call_edge_count > 0) {
-					$resolvedCallNodeCount++;
-					if ($op instanceof FuncCall) {
+				if ($op instanceof FuncCall || $op instanceof NsFuncCall) {
+					$funcCallNodes++;
+					if ($call_edge_count > 0) {
 						$resolvedFuncCallNodeCount++;
 						if (isset($resolvedFuncCallEdgeCounts[$call_edge_count])) {
 							$resolvedFuncCallEdgeCounts[$call_edge_count]++;
 						} else {
 							$resolvedFuncCallEdgeCounts[$call_edge_count] = 1;
 						}
-					} else if ($op instanceof NsFuncCall) {
-						$resolvedNsFuncCallNodeCount++;
-						if (isset($resolvedNsFuncCallEdgeCounts[$call_edge_count])) {
-							$resolvedNsFuncCallEdgeCounts[$call_edge_count]++;
-						} else {
-							$resolvedNsFuncCallEdgeCounts[$call_edge_count] = 1;
+
+						foreach ($call_edges as $call_edge) {
+							$to_node = $call_edge->getToNode();
+							if ($to_node instanceof FuncNode) {
+								$funcCallEdgeToFuncCount++;
+							} else if ($to_node instanceof BuiltinFuncNode) {
+								$funcCallEdgeToBuiltinFuncCount++;
+							} else if ($to_node instanceof UndefinedFuncNode) {
+								$funcCallEdgeToUndefinedFuncCount++;
+							}
 						}
-					} else if ($op instanceof MethodCall) {
+					}
+				} else if ($op instanceof MethodCall || $op instanceof StaticCall) {
+					$methodCallNodes++;
+					if ($call_edge_count > 0) {
 						$resolvedMethodCallNodeCount++;
 						if (isset($resolvedMethodCallEdgeCounts[$call_edge_count])) {
 							$resolvedMethodCallEdgeCounts[$call_edge_count]++;
 						} else {
 							$resolvedMethodCallEdgeCounts[$call_edge_count] = 1;
 						}
-					} else if ($op instanceof StaticCall) {
-						$resolvedStaticCallNodeCount++;
-						if (isset($resolvedStaticCallEdgeCounts[$call_edge_count])) {
-							$resolvedStaticCallEdgeCounts[$call_edge_count]++;
-						} else {
-							$resolvedStaticCallEdgeCounts[$call_edge_count] = 1;
-						}
-					} else {
-						throw new \LogicException('Unknown call op `' . $op->getType() . '`');
-					}
-
-					foreach ($call_edges as $call_edge) {
-						$to_node = $call_edge->getToNode();
-						if ($to_node instanceof FuncNode) {
-							$callEdgeToFuncCount++;
-						} else if ($to_node instanceof BuiltinFuncNode) {
-							$callEdgeToBuiltinFuncCount++;
-						} else if ($to_node instanceof UndefinedFuncNode) {
-							$callEdgeToUndefinedFuncCount++;
+						foreach ($call_edges as $call_edge) {
+							$to_node = $call_edge->getToNode();
+							if ($to_node instanceof FuncNode) {
+								$methodCallEdgeToFuncCount++;
+							} else if ($to_node instanceof BuiltinFuncNode) {
+								$methodCallEdgeToBuiltinFuncCount++;
+							} else if ($to_node instanceof UndefinedFuncNode) {
+								$methodCallEdgeToUndefinedFuncCount++;
+							}
 						}
 					}
+				} else {
+					throw new \LogicException('Unknown call op `' . $op->getType() . '`');
 				}
 			}
 		}
 
 		return array_combine($this->getSuppliedAnalysisKeys(), [
-			$resolvedCallNodeCount,
+			$funcCallNodes,
 			$resolvedFuncCallNodeCount,
 			$resolvedFuncCallEdgeCounts,
-			$resolvedNsFuncCallNodeCount,
-			$resolvedNsFuncCallEdgeCounts,
+			$funcCallEdgeToFuncCount,
+			$funcCallEdgeToBuiltinFuncCount,
+			$funcCallEdgeToUndefinedFuncCount,
+
+			$methodCallNodes,
 			$resolvedMethodCallNodeCount,
 			$resolvedMethodCallEdgeCounts,
-			$resolvedStaticCallNodeCount,
-			$resolvedStaticCallEdgeCounts,
-			$callEdgeToFuncCount,
-			$callEdgeToBuiltinFuncCount,
-			$callEdgeToUndefinedFuncCount,
+			$methodCallEdgeToFuncCount,
+			$methodCallEdgeToBuiltinFuncCount,
+			$methodCallEdgeToUndefinedFuncCount,
 		]);
 	}
 
 	public function getSuppliedAnalysisKeys() {
 		return [
-			'resolvedCallNodeCount',
+			'funcCallNodes',
 			'resolvedFuncCallNodeCount',
 			'resolvedFuncCallEdgeCounts',
-			'resolvedNsFuncCallNodeCount',
-			'resolvedNsFuncCallEdgeCounts',
+			'funcCallEdgeToFuncCount',
+			'funcCallEdgeToBuiltinFuncCount',
+			'funcCallEdgeToUndefinedFuncCount',
+
+			'methodCallNodes',
 			'resolvedMethodCallNodeCount',
 			'resolvedMethodCallEdgeCounts',
-			'resolvedStaticCallNodeCount',
-			'resolvedStaticCallEdgeCounts',
-			'callEdgeToFuncCount',
-			'callEdgeToBuiltinFuncCount',
-			'callEdgeToUndefinedFuncCount',
+			'methodCallEdgeToFuncCount',
+			'methodCallEdgeToBuiltinFuncCount',
+			'methodCallEdgeToUndefinedFuncCount',
 		];
 	}
 }
