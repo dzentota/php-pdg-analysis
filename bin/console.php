@@ -25,11 +25,13 @@ use PhpPdgAnalysis\Table\Overview;
 use PhpPdgAnalysis\Table\FuncIncludes;
 use PhpPdgAnalysis\Table\FuncEval;
 use PhpPdgAnalysis\Table\FuncVarVar;
-use PhpPdgAnalysis\Table\CallOverloading;
+use PhpPdgAnalysis\Table\MethodOverloading;
 use PhpPdgAnalysis\Table\DuplicateNames;
 use PhpPdgAnalysis\Table\DynamicCalls;
 use PhpPdgAnalysis\Table\ResolvedFunctionCalls;
 use PhpPdgAnalysis\Table\ResolvedMethodCalls;
+use PhpPdgAnalysis\Table\IssetUnsetOverloading;
+use PhpPdgAnalysis\Table\PropertyOverloading;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
 use PhpPdgAnalysis\Command\AnalysisListCommand;
@@ -78,11 +80,12 @@ $tables = [
 	"func-eval" => new FuncEval(),
 	"func-includes" => new FuncIncludes(),
 	"func-var-var" => new FuncVarVar(),
-	"call-overloading" => new CallOverloading(),
 	'duplicate-names' => new DuplicateNames(),
 	'dynamic-calls' => new DynamicCalls(),
 	'resolved-function-calls' => new ResolvedFunctionCalls(),
 	'resolved-method-calls' => new ResolvedMethodCalls(),
+	'property-overloading' => new PropertyOverloading(),
+	"method-overloading" => new MethodOverloading(),
 ];
 ksort($tables);
 
