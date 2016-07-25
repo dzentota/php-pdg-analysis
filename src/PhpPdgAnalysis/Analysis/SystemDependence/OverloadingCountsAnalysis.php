@@ -17,26 +17,32 @@ use PhpPdg\SystemDependence\System;
 
 class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 	public function analyse(System $system) {
+		$__issetNodeCount = 0;
 		$__issetNodesLinkedCount = 0;
 		$__issetOverloadingCallEdgeCount = 0;
 		$__issetExplicitCallEdgeCount = 0;
 
+		$__unsetNodeCount = 0;
 		$__unsetNodesLinkedCount = 0;
 		$__unsetOverloadingCallEdgeCount = 0;
 		$__unsetExplicitCallEdgeCount = 0;
 
+		$__setNodeCount = 0;
 		$__getNodesLinkedCount = 0;
 		$__getOverloadingEdgeCount = 0;
 		$__getExplicitCallEdgeCount = 0;
 
+		$__getNodeCount = 0;
 		$__setNodesLinkedCount = 0;
 		$__setOverloadingCallEdgeCount = 0;
 		$__setExplicitCallEdgeCount = 0;
 
+		$__callNodeCount = 0;
 		$__callNodesLinkedCount = 0;
 		$__callOverloadingCallEdgeCount = 0;
 		$__callExplicitCallEdgeCount = 0;
 
+		$__callStaticNodeCount = 0;
 		$__callStaticNodesLinkedCount = 0;
 		$__callStaticOverloadingCallEdgeCount = 0;
 		$__callStaticExplicitCallEdgeCount = 0;
@@ -48,9 +54,10 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 					$name = strtolower($func->name);
 					if (in_array($name, ['__isset', '__unset', '__set', '__get', '__call', '__callstatic'], true)) {
 						$edges = $system->sdg->getEdges(null, $node, ['type' => 'call']);
-						if (count($edges) > 0) {
-							switch ($name) {
-								case '__isset':
+						switch ($name) {
+							case '__isset':
+								$__issetNodeCount++;
+								if (count($edges) > 0) {
 									$__issetNodesLinkedCount++;
 									foreach ($edges as $edge) {
 										$from_node = $edge->getFromNode();
@@ -65,8 +72,11 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 											}
 										}
 									}
-									break;
-								case '__unset':
+								}
+								break;
+							case '__unset':
+								$__unsetNodeCount++;
+								if (count($edges) > 0) {
 									$__unsetNodesLinkedCount++;
 									foreach ($edges as $edge) {
 										$from_node = $edge->getFromNode();
@@ -81,8 +91,11 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 											}
 										}
 									}
-									break;
-								case '__set':
+								}
+								break;
+							case '__set':
+								$__setNodeCount++;
+								if (count($edges) > 0) {
 									$__setNodesLinkedCount++;
 									foreach ($edges as $edge) {
 										$from_node = $edge->getFromNode();
@@ -97,8 +110,11 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 											}
 										}
 									}
-									break;
-								case '__get':
+								}
+								break;
+							case '__get':
+								$__getNodeCount++;
+								if (count($edges) > 0) {
 									$__getNodesLinkedCount++;
 									foreach ($edges as $edge) {
 										$from_node = $edge->getFromNode();
@@ -113,8 +129,11 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 											}
 										}
 									}
-									break;
-								case '__call':
+								}
+								break;
+							case '__call':
+								$__callNodeCount++;
+								if (count($edges) > 0) {
 									$__callNodesLinkedCount++;
 									foreach ($edges as $edge) {
 										$from_node = $edge->getFromNode();
@@ -130,8 +149,11 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 											}
 										}
 									}
-									break;
-								case '__callstatic':
+								}
+								break;
+							case '__callstatic':
+								$__callStaticNodeCount++;
+								if (count($edges) > 0) {
 									$__callStaticNodesLinkedCount++;
 									foreach ($edges as $edge) {
 										$from_node = $edge->getFromNode();
@@ -147,10 +169,10 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 											}
 										}
 									}
-									break;
-								default:
-									throw new \LogicException("Not possible");
-							}
+								}
+								break;
+							default:
+								throw new \LogicException("Not possible");
 						}
 					}
 				}
@@ -158,26 +180,32 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 		}
 
 		return array_combine($this->getSuppliedAnalysisKeys(), [
+			$__issetNodeCount,
 			$__issetNodesLinkedCount,
 			$__issetOverloadingCallEdgeCount,
 			$__issetExplicitCallEdgeCount,
 
+			$__unsetNodeCount,
 			$__unsetNodesLinkedCount,
 			$__unsetOverloadingCallEdgeCount,
 			$__unsetExplicitCallEdgeCount,
 
+			$__getNodeCount,
 			$__getNodesLinkedCount,
 			$__getOverloadingEdgeCount,
 			$__getExplicitCallEdgeCount,
 
+			$__setNodeCount,
 			$__setNodesLinkedCount,
 			$__setOverloadingCallEdgeCount,
 			$__setExplicitCallEdgeCount,
 
+			$__callNodeCount,
 			$__callNodesLinkedCount,
 			$__callOverloadingCallEdgeCount,
 			$__callExplicitCallEdgeCount,
 
+			$__callStaticNodeCount,
 			$__callStaticNodesLinkedCount,
 			$__callStaticOverloadingCallEdgeCount,
 			$__callStaticExplicitCallEdgeCount,
@@ -186,26 +214,32 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 
 	public function getSuppliedAnalysisKeys() {
 		return [
+			'__issetNodeCount',
 			'__issetNodesLinkedCount',
 			'__issetOverloadingCallEdgeCount',
 			'__issetExplicitCallEdgeCount',
 
+			'__unsetNodeCount',
 			'__unsetNodesLinkedCount',
 			'__unsetOverloadingCallEdgeCount',
 			'__unsetExplicitCallEdgeCount',
 
+			'__getNodeCount',
 			'__getNodesLinkedCount',
 			'__getOverloadingEdgeCount',
 			'__getExplicitCallEdgeCount',
 
+			'__setStaticNodeCount',
 			'__setNodesLinkedCount',
 			'__setOverloadingCallEdgeCount',
 			'__setExplicitCallEdgeCount',
 
+			'__callNodeCount',
 			'__callNodesLinkedCount',
 			'__callOverloadingCallEdgeCount',
 			'__callExplicitCallEdgeCount',
 
+			'__callStaticNodeCount',
 			'__callStaticNodesLinkedCount',
 			'__callStaticOverloadingCallEdgeCount',
 			'__callStaticExplicitCallEdgeCount',
