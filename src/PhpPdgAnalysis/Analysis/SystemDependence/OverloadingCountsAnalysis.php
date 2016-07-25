@@ -229,7 +229,7 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 			'__getOverloadingCallEdgeCount',
 			'__getExplicitCallEdgeCount',
 
-			'__setStaticNodeCount',
+			'__setNodeCount',
 			'__setNodesLinkedCount',
 			'__setOverloadingCallEdgeCount',
 			'__setExplicitCallEdgeCount',
