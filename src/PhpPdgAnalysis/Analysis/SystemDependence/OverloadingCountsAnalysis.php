@@ -29,7 +29,7 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 
 		$__setNodeCount = 0;
 		$__getNodesLinkedCount = 0;
-		$__getOverloadingEdgeCount = 0;
+		$__getOverloadingCallEdgeCount = 0;
 		$__getExplicitCallEdgeCount = 0;
 
 		$__getNodeCount = 0;
@@ -121,7 +121,7 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 										if ($from_node instanceof OpNode) {
 											$from_op = $from_node->op;
 											if ($from_op instanceof PropertyFetch) {
-												$__getOverloadingEdgeCount++;
+												$__getOverloadingCallEdgeCount++;
 											} else if ($from_op instanceof MethodCall || $from_op instanceof StaticCall) {
 												$__getExplicitCallEdgeCount++;
 											} else {
@@ -192,7 +192,7 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 
 			$__getNodeCount,
 			$__getNodesLinkedCount,
-			$__getOverloadingEdgeCount,
+			$__getOverloadingCallEdgeCount,
 			$__getExplicitCallEdgeCount,
 
 			$__setNodeCount,
@@ -226,7 +226,7 @@ class OverloadingCountsAnalysis implements SystemAnalysisInterface {
 
 			'__getNodeCount',
 			'__getNodesLinkedCount',
-			'__getOverloadingEdgeCount',
+			'__getOverloadingCallEdgeCount',
 			'__getExplicitCallEdgeCount',
 
 			'__setStaticNodeCount',
