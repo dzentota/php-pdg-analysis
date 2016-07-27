@@ -19,7 +19,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 	public function analyse(System $system) {
 		$funcCallNodes = 0;
 		$resolvedFuncCallNodeCount = 0;
-		$resolvedFuncCallEdgeCounts = [];
 		$funcCallEdgeToFuncCount = 0;
 		$funcCallEdgeToBuiltinFuncCount = 0;
 		$funcCallEdgeToUndefinedFuncCount = 0;
@@ -27,7 +26,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 		$methodCallNodes = 0;
 		$typedMethodCallNodes = 0;
 		$resolvedMethodCallNodeCount = 0;
-		$resolvedMethodCallEdgeCounts = [];
 		$methodCallEdgeToFuncCount = 0;
 		$methodCallEdgeToBuiltinFuncCount = 0;
 		$methodCallEdgeToUndefinedFuncCount = 0;
@@ -43,11 +41,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 					$funcCallNodes++;
 					if ($call_edge_count > 0) {
 						$resolvedFuncCallNodeCount++;
-						if (isset($resolvedFuncCallEdgeCounts[$call_edge_count])) {
-							$resolvedFuncCallEdgeCounts[$call_edge_count]++;
-						} else {
-							$resolvedFuncCallEdgeCounts[$call_edge_count] = 1;
-						}
 
 						foreach ($call_edges as $call_edge) {
 							$to_node = $call_edge->getToNode();
@@ -71,11 +64,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 
 					if ($call_edge_count > 0) {
 						$resolvedMethodCallNodeCount++;
-						if (isset($resolvedMethodCallEdgeCounts[$call_edge_count])) {
-							$resolvedMethodCallEdgeCounts[$call_edge_count]++;
-						} else {
-							$resolvedMethodCallEdgeCounts[$call_edge_count] = 1;
-						}
 						foreach ($call_edges as $call_edge) {
 							$to_node = $call_edge->getToNode();
 							if ($to_node instanceof FuncNode) {
@@ -94,7 +82,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 		return array_combine($this->getSuppliedAnalysisKeys(), [
 			$funcCallNodes,
 			$resolvedFuncCallNodeCount,
-			$resolvedFuncCallEdgeCounts,
 			$funcCallEdgeToFuncCount,
 			$funcCallEdgeToBuiltinFuncCount,
 			$funcCallEdgeToUndefinedFuncCount,
@@ -102,7 +89,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 			$methodCallNodes,
 			$typedMethodCallNodes,
 			$resolvedMethodCallNodeCount,
-			$resolvedMethodCallEdgeCounts,
 			$methodCallEdgeToFuncCount,
 			$methodCallEdgeToBuiltinFuncCount,
 			$methodCallEdgeToUndefinedFuncCount,
@@ -113,7 +99,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 		return [
 			'funcCallNodes',
 			'resolvedFuncCallNodeCount',
-			'resolvedFuncCallEdgeCounts',
 			'funcCallEdgeToFuncCount',
 			'funcCallEdgeToBuiltinFuncCount',
 			'funcCallEdgeToUndefinedFuncCount',
@@ -121,7 +106,6 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 			'methodCallNodes',
 			'typedMethodCallNodes',
 			'resolvedMethodCallNodeCount',
-			'resolvedMethodCallEdgeCounts',
 			'methodCallEdgeToFuncCount',
 			'methodCallEdgeToBuiltinFuncCount',
 			'methodCallEdgeToUndefinedFuncCount',
