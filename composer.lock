@@ -48,7 +48,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mwijngaard/php-types",
-                "reference": "47866218db304222628eeb904c60d14fdda79576"
+                "reference": "870c791c5c9d452bcd9ec084d8b57d71fd03997c"
             },
             "require": {
                 "ircmaxell/php-cfg": "dev-master",
@@ -74,7 +74,7 @@
                 }
             ],
             "description": "A PHP CFG Type Inference / Reconstruction Engine",
-            "time": "2016-07-23 15:51:32"
+            "time": "2016-07-25 15:20:58"
         },
         {
             "name": "mwijngaard/php-pdg",
@@ -82,7 +82,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mwijngaard/php-pdg",
-                "reference": "52e5d13dcef2ceb10b38e4da7e0b5716b17c151f"
+                "reference": "082fc0be7fe14cbb149d4d596dfff8300c4a6ded"
             },
             "require": {
                 "ircmaxell/php-cfg": "dev-master",
@@ -109,7 +109,7 @@
                 }
             ],
             "description": "Program Dependence Graph (PDG) library for PHP",
-            "time": "2016-07-25 12:52:42"
+            "time": "2016-07-26 14:42:27"
         },
         {
             "name": "nikic/php-parser",

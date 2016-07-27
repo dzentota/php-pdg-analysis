@@ -30,14 +30,19 @@ use PhpPdgAnalysis\Table\DuplicateNames;
 use PhpPdgAnalysis\Table\DynamicCalls;
 use PhpPdgAnalysis\Table\ResolvedFunctionCalls;
 use PhpPdgAnalysis\Table\ResolvedMethodCalls;
-use PhpPdgAnalysis\Table\IssetUnsetOverloading;
 use PhpPdgAnalysis\Table\PropertyOverloading;
+use PhpPdgAnalysis\Table\DataDependences;
+use PhpPdgAnalysis\Plot\EvalMaybeDependences;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
 use PhpPdgAnalysis\Command\AnalysisListCommand;
 use PhpPdgAnalysis\Command\TablePrintCommand;
 use PhpPdgAnalysis\Command\TableListCommand;
 use PhpPdgAnalysis\Command\SliceCommand;
+use PhpPdgAnalysis\Command\PlotListCommand;
+use PhpPdgAnalysis\Command\PlotPrintCommand;
+use PhpPdgAnalysis\Command\CallPairsFromSdgCommand;
+use PhpPdgAnalysis\Command\CallPairsFromTraceCommand;
 
 assert_options(ASSERT_BAIL, 1);
 gc_disable();
@@ -86,8 +91,13 @@ $tables = [
 	'resolved-method-calls' => new ResolvedMethodCalls(),
 	'property-overloading' => new PropertyOverloading(),
 	"method-overloading" => new MethodOverloading(),
+	'data-dependences' => new DataDependences(),
 ];
 ksort($tables);
+$plots = [
+	'eval-maybe' => new EvalMaybeDependences(),
+];
+ksort($plots);
 
 $application = new Application();
 $application->add(new AnalysisClearCommand($cacheFile));
@@ -96,4 +106,8 @@ $application->add(new AnalysisListCommand($directoryAnalyses, $analysingVisitors
 $application->add(new TablePrintCommand($cacheFile, $tables));
 $application->add(new TableListCommand($tables));
 $application->add(new SliceCommand());
+$application->add(new PlotListCommand($plots));
+$application->add(new PlotPrintCommand($cacheFile, $plots));
+$application->add(new CallPairsFromSdgCommand($cacheDir));
+$application->add(new CallPairsFromTraceCommand());
 $application->run();

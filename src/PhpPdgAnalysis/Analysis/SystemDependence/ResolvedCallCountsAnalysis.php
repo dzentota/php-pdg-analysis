@@ -6,6 +6,8 @@ use PHPCfg\Op\Expr\FuncCall;
 use PHPCfg\Op\Expr\MethodCall;
 use PHPCfg\Op\Expr\NsFuncCall;
 use PHPCfg\Op\Expr\StaticCall;
+use PHPCfg\Operand;
+use PHPCfg\Operand\Literal;
 use PhpPdg\ProgramDependence\Node\OpNode;
 use PhpPdg\SystemDependence\Node\BuiltinFuncNode;
 use PhpPdg\SystemDependence\Node\FuncNode;
@@ -60,15 +62,13 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 					}
 				} else if ($op instanceof MethodCall || $op instanceof StaticCall) {
 					$methodCallNodes++;
-					if ($op instanceof MethodCall) {
-						if (is_object($op->var->type) && $op->var->type instanceof Type && $this->typeResolvesToClass($op->var->type)) {
-							$typedMethodCallNodes++;
-						}
-					} else if ($op instanceof StaticCall) {
-						if (is_object($op->class->type) && $op->class->type instanceof Type && $this->typeResolvesToClass($op->class->type)) {
-							$typedMethodCallNodes++;
-						}
+
+					/** @var Operand $classOperand */
+					$classOperand = $op instanceof MethodCall ? $op->var : $op->class;
+					if ($this->operandResolvesToClass($classOperand) === true) {
+						$typedMethodCallNodes++;
 					}
+
 					if ($call_edge_count > 0) {
 						$resolvedMethodCallNodeCount++;
 						if (isset($resolvedMethodCallEdgeCounts[$call_edge_count])) {
@@ -128,10 +128,27 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 		];
 	}
 
+	private function operandResolvesToClass(Operand $operand) {
+		if ($operand->type !== null) {
+			$type = $operand->type;
+			if ($type === 'string') {
+				return $operand instanceof Literal;
+			} else {
+				assert(is_object($type));
+				assert($type instanceof Type);
+				/** @var $type Type */
+				if ($type->type === Type::TYPE_STRING) {
+					return $operand instanceof Literal;
+				} else {
+					return $this->typeResolvesToClass($operand->type);
+				}
+			}
+		}
+		return false;
+	}
+
 	private function typeResolvesToClass(Type $type) {
 		switch ($type->type) {
-			case Type::TYPE_STRING:
-				return true;
 			case Type::TYPE_OBJECT:
 				return $type->userType !== null;
 			case Type::TYPE_UNION:
