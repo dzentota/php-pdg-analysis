@@ -28,6 +28,7 @@ class CallPairsFromTraceCommand extends Command {
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output) {
+		$starttime = microtime(true);
 		$traceFile = $input->getArgument('traceFile');
 		$outputFile = $input->getArgument('outputFile');
 
@@ -38,7 +39,6 @@ class CallPairsFromTraceCommand extends Command {
 		$f = fopen($traceFile, 'r');
 		while (strpos(($l = fgets($f)), 'TRACE START') !== 0) {}
 
-		$starttime = microtime(true);
 		$stack = [];
 		$currentfunc = null;
 		$out = [];
@@ -79,8 +79,6 @@ class CallPairsFromTraceCommand extends Command {
 			}
 		}
 		file_put_contents($outputFile, json_encode($out, JSON_PRETTY_PRINT));
-		$runtime = microtime(true) - $starttime;
-		echo "Total: $recordct records, containing $callpairct unique call pairs\n";
-		echo sprintf("Time: %0.2fs\n", $runtime);
+		echo sprintf("Time: %0.2fs\n", microtime(true) - $starttime);
 	}
 }

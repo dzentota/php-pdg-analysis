@@ -61,6 +61,7 @@ class CallPairsFromSdgCommand extends Command {
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output) {
+		$starttime = microtime(true);
 		$systemdir = $input->getArgument('systemDir');
 		$outputFile = $input->getArgument('outputFile');
 
@@ -118,5 +119,6 @@ class CallPairsFromSdgCommand extends Command {
 			}
 		}
 		file_put_contents($outputFile, json_encode($out, JSON_PRETTY_PRINT));
+		echo sprintf("Time: %0.2fs\n", microtime(true) - $starttime);
 	}
 }
