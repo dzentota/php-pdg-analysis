@@ -119,37 +119,4 @@ class CallPairsFromSdgCommand extends Command {
 		}
 		file_put_contents($outputFile, json_encode($out, JSON_PRETTY_PRINT));
 	}
-
-//	private function typeResolvesToClass(Type $type) {
-//		switch ($type->type) {
-//			case Type::TYPE_OBJECT:
-//				return $type->userType !== null;
-//			case Type::TYPE_UNION:
-//				foreach ($type->subTypes as $subType) {
-//					if ($this->typeResolvesToClass($subType) === true) {
-//						return true;
-//					}
-//				}
-//		}
-//		return false;
-//	}
-//
-//	private function operandResolvesToClass(Operand $operand) {
-//		if ($operand !== null) {
-//			$type = $operand->type;
-//			if ($type === 'string') {
-//				return $operand instanceof Literal;
-//			} else {
-//				assert(is_object($type));
-//				assert($type instanceof Type);
-//				/** @var $type Type */
-//				if ($type->type === Type::TYPE_STRING) {
-//					return $operand instanceof Literal;
-//				} else {
-//					return $this->typeResolvesToClass($operand->type);
-//				}
-//			}
-//		}
-//		return false;
-//	}
 }
