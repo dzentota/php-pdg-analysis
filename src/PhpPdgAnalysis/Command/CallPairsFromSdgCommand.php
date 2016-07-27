@@ -85,6 +85,7 @@ class CallPairsFromSdgCommand extends Command {
 
 		$out = [];
 		foreach ($system->sdg->getNodes() as $node) {
+			$funcName = null;
 			if ($node instanceof OpNode) {
 				$op = $node->op;
 
@@ -97,25 +98,30 @@ class CallPairsFromSdgCommand extends Command {
 					$callEdges = $system->sdg->getEdges($node, null, ['type' => 'call']);
 					if (!empty($callEdges)) {
 						$opFilename = $op->getFile();
-						$opLineNumber = $op->getLine();
+						$opStartLine = $op->getLine();
+						$opEndLine = $op->getAttribute('endLine');
+						$xdebugLine = $opStartLine === $opEndLine ? $opStartLine : $opEndLine - 1;      // weirdness because xdebug registers function calls at the line of its last argument, which due to our formatting of doctrine should always be equal to endline -1
 
 						foreach ($callEdges as $callEdge) {
 							/** @var FuncNode $toNode */
 							$toNode = $callEdge->getToNode();
+							$toScopedName = null;
 							if ($toNode instanceof FuncNode) {
 								$toScopedName = $toNode->getFunc()->getScopedName();
 							} else if ($toNode instanceof BuiltinFuncNode) {
 								$toScopedName = $toNode->getId();
-							} else if ($toNode instanceof UndefinedFuncNode) {
-								$toScopedName = $toNode->getId();
-							} else {
-								throw new \LogicException("Unexpected call target `" . $toNode->toString() . "`");
 							}
 
-							$out[$opFilename][$opLineNumber][$toScopedName] = 1;
+							if ($toScopedName !== null) {
+								$out['calls'][$opFilename][$xdebugLine][$toScopedName] = 1;
+							}
 						}
 					}
 				}
+			} else if ($node instanceof FuncNode) {
+				$out['funcs'][$node->getFunc()->getScopedName()] = 1;
+			} else if ($node instanceof BuiltinFuncNode) {
+				$out['builtin-funcs'][$node->getId()] = 1;
 			}
 		}
 		file_put_contents($outputFile, json_encode($out, JSON_PRETTY_PRINT));

@@ -43,6 +43,7 @@ use PhpPdgAnalysis\Command\PlotListCommand;
 use PhpPdgAnalysis\Command\PlotPrintCommand;
 use PhpPdgAnalysis\Command\CallPairsFromSdgCommand;
 use PhpPdgAnalysis\Command\CallPairsFromTraceCommand;
+use PhpPdgAnalysis\Command\CallPairsCompareCommand;
 
 assert_options(ASSERT_BAIL, 1);
 gc_disable();
@@ -110,4 +111,5 @@ $application->add(new PlotListCommand($plots));
 $application->add(new PlotPrintCommand($cacheFile, $plots));
 $application->add(new CallPairsFromSdgCommand($cacheDir));
 $application->add(new CallPairsFromTraceCommand());
+$application->add(new CallPairsCompareCommand());
 $application->run();
