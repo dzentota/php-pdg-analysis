@@ -4,14 +4,13 @@ namespace PhpPdgAnalysis\Command;
 
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
-use PhpParser\Parser;
 use PhpParser\ParserFactory;
+use PhpPdg\CfgBridge\System as CfgSystem;
 use PhpPdg\ProgramDependence\DataDependence\CombiningGenerator;
 use PhpPdg\ProgramDependence\DataDependence\MaybeGenerator as MaybeDataDependenceGenerator;
 use PhpPdg\ProgramDependence\Factory as PdgFactory;
 use PhpPdg\ProgramDependence\MemoryCachingFactory;
 use PhpPdg\SystemDependence\Factory as SdgFactory;
-use PhpPdg\SystemDependence\FilesystemFactory as SdgFilesystemFactory;
 use PhpPdgAnalysis\Analysis\DirectoryAnalysisInterface;
 use PhpPdgAnalysis\Analysis\ProgramDependence\FuncAnalysisInterface;
 use PhpPdgAnalysis\Analysis\SystemDependence\SystemAnalysisInterface;
@@ -21,9 +20,7 @@ use PhpPdg\AstBridge\Parser\MemoryCachingParser as AstMemoryCachingParser;
 use PhpPdg\AstBridge\Parser\WrappedParser as AstWrappedParser;
 use PhpPdg\CfgBridge\Parser\FileCachingParser as CfgFileCachingParser;
 use PhpPdg\CfgBridge\Parser\WrappedParser as CfgWrappedParser;
-use PhpPdgAnalysis\ProgramDependence\DebugFactory as PdgDebugFactory;
-use PhpPdgAnalysis\SystemDependence\DebugFactory as SdgDebugFactory;
-use PhpPdgAnalysis\SystemDependence\DebugFilesystemFactory as SdgDebugFilesystemFactory;
+use PhpPdgAnalysis\NodeVisitor\MaxComplexityCalculatingVisitor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -46,6 +43,8 @@ class AnalysisRunCommand extends Command {
 	private $directoryAnalyses;
 	/** @var NameResolver  */
 	private $nameResolvingVisitor;
+	/** @var MaxComplexityCalculatingVisitor */
+	private $maxComplexityComputingVisitor;
 	/** @var AnalysisVisitorInterface[] */
 	private $analysisVisitors;
 	/** @var  FuncAnalysisInterface[] */
@@ -56,9 +55,9 @@ class AnalysisRunCommand extends Command {
 	private $memory_caching_ast_parser;
 	/** @var CfgFileCachingParser  */
 	private $cfg_parser;
-	/** @var  PdgDebugFactory */
+	/** @var  MemoryCachingFactory */
 	private $memory_caching_pdg_factory;
-	/** @var  SdgDebugFilesystemFactory */
+	/** @var SdgFactory  */
 	private $sdg_factory;
 
 	/**
@@ -77,6 +76,7 @@ class AnalysisRunCommand extends Command {
 		$this->cacheDir = $cacheDir;
 		$this->directoryAnalyses = $directoryAnalyses;
 		$this->nameResolvingVisitor = new NameResolver();
+		$this->maxComplexityComputingVisitor = new MaxComplexityCalculatingVisitor();
 		$this->analysisVisitors = $analysisVisitors;
 		$this->funcAnalyses = $funcAnalyses;
 		$this->systemAnalyses = $systemAnalyses;
@@ -94,8 +94,8 @@ class AnalysisRunCommand extends Command {
 			new DataDependenceGenerator(),
 			new MaybeDataDependenceGenerator()
 		]);
-		$this->memory_caching_pdg_factory = new MemoryCachingFactory(new PdgDebugFactory(new PdgFactory($graph_factory, $control_dependence_generator, $data_dependence_generator)));
-		$this->sdg_factory = new SdgDebugFilesystemFactory(new SdgFilesystemFactory($this->cfg_parser, new SdgDebugFactory(new SdgFactory($graph_factory, $this->memory_caching_pdg_factory))));
+		$this->memory_caching_pdg_factory = new MemoryCachingFactory(new PdgFactory($graph_factory, $control_dependence_generator, $data_dependence_generator));
+		$this->sdg_factory = new SdgFactory($graph_factory, $this->memory_caching_pdg_factory);
 
 		parent::__construct("analysis:run");
 	}
@@ -150,7 +150,7 @@ class AnalysisRunCommand extends Command {
 
 				$libraryname = $libraryRootFileInfo->getFilename();
 				$librarydir = $libraryRootFileInfo->getRealPath();
-				echo "analysing $libraryname\n";
+				echo "Analysing `$libraryname` ...\n";
 				$library_cache = isset($cache[$libraryname]) ? $cache[$libraryname] : [];
 
 				$force = $input->getOption('force');
@@ -166,60 +166,62 @@ class AnalysisRunCommand extends Command {
 					if (isset($this->directoryAnalyses[$analysisName])) {
 						$directoryAnalysis = $this->directoryAnalyses[$analysisName];
 						if ($force || !$this->areAllKeysSet($directoryAnalysis->getSuppliedAnalysisKeys(), $library_cache)) {
-							$status = 'running';
+							$status = 'Running';
 							$directoryAnalysesToRun[$analysisName] = $directoryAnalysis;
 						} else {
-							$status = 'in cache';
+							$status = 'In cache';
 						}
-						echo "director analysis `$analysisName`: $status\n";
+						echo "Director analysis `$analysisName`: $status.\n";
 					}
 					if (isset($this->analysisVisitors[$analysisName])) {
 						$analysisVisitor = $this->analysisVisitors[$analysisName];
 						if ($force || !$this->areAllKeysSet($analysisVisitor->getSuppliedAnalysisKeys(), $library_cache)) {
-							$status = 'running';
+							$status = 'Running';
 							$analysisVisitorsToRun[$analysisName] = $analysisVisitor;
 						} else {
-							$status = 'in cache';
+							$status = 'In cache';
 						}
-						echo "analysis visitor `$analysisName`: $status\n";
+						echo "Analysis visitor `$analysisName`: $status.\n";
 					}
 					if (isset($this->funcAnalyses[$analysisName])) {
 						$funcAnalysis = $this->funcAnalyses[$analysisName];
 						if ($force || !$this->areAllKeysSet($funcAnalysis->getSuppliedAnalysisKeys(), $library_cache)) {
-							$status = 'running';
+							$status = 'Running';
 							$funcAnalysesToRun[$analysisName] = $funcAnalysis;
 						} else {
-							$status = 'in cache';
+							$status = 'In cache';
 						}
-						echo "func analysis `$analysisName`: $status\n";
+						echo "Func analysis `$analysisName`: $status.\n";
 					}
 					if (isset($this->systemAnalyses[$analysisName])) {
 						$systemAnalysis = $this->systemAnalyses[$analysisName];
 						if ($force || !$this->areAllKeysSet($systemAnalysis->getSuppliedAnalysisKeys(), $library_cache)) {
-							$status = 'running';
+							$status = 'Running';
 							$systemAnalysesToRun[$analysisName] = $systemAnalysis;
 						} else {
-							$status = 'in cache';
+							$status = 'In cache';
 						}
-						echo "system analysis `$analysisName`: $status\n";
+						echo "System analysis `$analysisName`: $status.\n";
 					}
 				}
 
 				if (count($directoryAnalysesToRun) > 0) {
-					echo "running directory analyses\n";
+					echo "Running directory analyses\n";
 					foreach ($directoryAnalysesToRun as $directoryAnalysis) {
 						$analysisResults = $directoryAnalysis->analyse($librarydir);
 						foreach ($analysisResults as $key => $value) {
 							$library_cache[$key] = $value;
 						}
 					}
-					echo "directory analyses done\n";
+					echo "Directory analyses done.\n";
 				} else {
-					echo "no directory analyses to run\n";
+					echo "No directory analyses to run.\n";
 				}
 				if (count($analysisVisitorsToRun) > 0 || count($funcAnalysesToRun) > 0 || count($systemAnalysesToRun) > 0) {
 					$traverser = new NodeTraverser();
 					$traverser->addVisitor($this->nameResolvingVisitor);
+					$traverser->addVisitor($this->maxComplexityComputingVisitor);
+					$cfg_system = new CfgSystem;
 					foreach ($analysisVisitorsToRun as $analysisVisitor) {
 						$traverser->addVisitor($analysisVisitor);
 						$analysisVisitor->enterLibrary($libraryname);
@@ -227,29 +229,42 @@ class AnalysisRunCommand extends Command {
 					foreach ($funcAnalysesToRun as $funcAnalysis) {
 						$funcAnalysis->enterLibrary($libraryname);
 					}
-					echo "analysing files ";
+					echo "Analysing files ...\n";
 					/** @var \SplFileInfo $libraryFileInfo */
+					$i = 0;
+					$maxComplexityExceededFileCt = 0;
+					$errorFileCt = 0;
 					foreach (new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($libraryRootFileInfo->getRealPath())), "/.*\\.php$/i") as $libraryFileInfo) {
 						$filename = $libraryFileInfo->getRealPath();
+						echo sprintf('#%d %s: ...', ++$i, $filename);
 						try {
-							if (count($analysisVisitorsToRun) > 0) {
-								$nodes = $this->memory_caching_ast_parser->parse($filename);
-								$traverser->traverse($nodes);
+							$nodes = $this->memory_caching_ast_parser->parse($filename);
+							$traverser->traverse($nodes);
+							if ($this->maxComplexityComputingVisitor->getMaxComplexity() > 100) {
+								$maxComplexityExceededFileCt++;
+								throw new \RuntimeException('Max complexity exceeded');
 							}
-							if (count($funcAnalysesToRun) > 0) {
-								$script = $this->cfg_parser->parse($filename);
-								foreach (array_merge([$script->main], $script->functions) as $cfg_func) {
+
+							if (empty($funcAnalysesToRun) === false || empty($systemAnalysesToRun) === false) {
+								$cfg_script = $this->cfg_parser->parse($filename);
+								foreach (array_merge([$cfg_script->main], $cfg_script->functions) as $cfg_func) {
 									$pdg = $this->memory_caching_pdg_factory->create($cfg_func, $filename);
 									foreach ($funcAnalysesToRun as $funcAnalysis) {
 										$funcAnalysis->analyse($pdg);
 									}
 								}
+								if (empty($systemAnalysesToRun) === false) {
+									$cfg_system->addScript($filename, $cfg_script);
+								}
 							}
-							echo ".";
+							echo "Ok\n";
 						} catch (\Exception $e) {
-							echo "E";
+							$errorFileCt++;
+							echo 'Error(' . $e->getMessage() . ")\n";
 						}
 					}
+					$library_cache['maxComplexityExceededFileCt'] = $maxComplexityExceededFileCt;
+					$library_cache['errorFileCt'] = $errorFileCt;
 					foreach ($analysisVisitorsToRun as $analysisVisitor) {
 						$analysisVisitor->leaveLibrary($libraryname);
 						$library_cache = array_merge($library_cache, $analysisVisitor->getAnalysisResults());
@@ -258,30 +273,29 @@ class AnalysisRunCommand extends Command {
 						$funcAnalysis->leaveLibrary($libraryname);
 						$library_cache = array_merge($library_cache, $funcAnalysis->getAnalysisResults());
 					}
-					echo "\n";
 					if (count($systemAnalysesToRun) > 0) {
-						echo "creating sdg\n";
-						$system = $this->sdg_factory->create($librarydir);
+						echo "Creating SDG...\n";
+						$system = $this->sdg_factory->create($cfg_system);
 						foreach ($systemAnalysesToRun as $systemAnalysis) {
 							$analysisResults = $systemAnalysis->analyse($system);
 							$library_cache = array_merge($library_cache, $analysisResults);
 						}
 					}
 				} else {
-					echo "file analysis not required\n";
+					echo "File analysis not required.\n";
 				}
 
 				$cache[$libraryname] = $library_cache;
 
 				file_put_contents($this->cacheFile, json_encode($cache, JSON_PRETTY_PRINT));
-				echo "$libraryname done " . json_encode($library_cache, JSON_PRETTY_PRINT) . "\n";
+				echo "Analysis of `$libraryname` done: " . json_encode($library_cache, JSON_PRETTY_PRINT) . "\n";
 			}
 			$this->memory_caching_ast_parser->clear();
 			$this->memory_caching_pdg_factory->clear();
 		}
-		echo "all done\n";
-		echo 'runtime: ' . (microtime(true) - $time_start) . "s\n";
-		echo 'peak memory usage: ' . memory_get_peak_usage(true) / 1024 / 1024 . "M\n";
+		echo "All done\n";
+		echo 'Runtime: ' . (microtime(true) - $time_start) . "s\n";
+		echo 'Peak memory usage: ' . memory_get_peak_usage(true) / 1024 / 1024 . "M\n";
 	}
 
 	private function passesFilter($library_path, $library_filters) {
