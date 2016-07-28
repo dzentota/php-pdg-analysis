@@ -16,7 +16,6 @@ use PhpPdgAnalysis\Analysis\ProgramDependence\FuncAnalysisInterface;
 use PhpPdgAnalysis\Analysis\SystemDependence\SystemAnalysisInterface;
 use PhpPdgAnalysis\Analysis\Visitor\AnalysisVisitorInterface;
 use PhpPdg\AstBridge\Parser\FileCachingParser as AstFileCachingParser;
-use PhpPdg\AstBridge\Parser\MemoryCachingParser as AstMemoryCachingParser;
 use PhpPdg\AstBridge\Parser\WrappedParser as AstWrappedParser;
 use PhpPdg\CfgBridge\Parser\FileCachingParser as CfgFileCachingParser;
 use PhpPdg\CfgBridge\Parser\WrappedParser as CfgWrappedParser;
@@ -51,8 +50,8 @@ class AnalysisRunCommand extends Command {
 	private $funcAnalyses;
 	/** @var SystemAnalysisInterface[] */
 	private $systemAnalyses;
-	/** @var AstMemoryCachingParser */
-	private $memory_caching_ast_parser;
+	/** @var AstFileCachingParser */
+	private $caching_ast_parser;
 	/** @var CfgFileCachingParser  */
 	private $cfg_parser;
 	/** @var  MemoryCachingFactory */
@@ -82,9 +81,9 @@ class AnalysisRunCommand extends Command {
 		$this->systemAnalyses = $systemAnalyses;
 
 		$ast_string_parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
-		$this->memory_caching_ast_parser = new AstMemoryCachingParser(new AstFileCachingParser($cacheDir . '/ast', new AstWrappedParser($ast_string_parser), true));
+		$this->caching_ast_parser = new AstFileCachingParser($cacheDir . '/ast', new AstWrappedParser($ast_string_parser), true);
 
-		$this->cfg_parser = new CfgFileCachingParser($cacheDir . '/cfg', new CfgWrappedParser($this->memory_caching_ast_parser), true);
+		$this->cfg_parser = new CfgFileCachingParser($cacheDir . '/cfg', new CfgWrappedParser($this->caching_ast_parser), true);
 		$graph_factory = new GraphFactory();
 		$block_cfg_generator = new BlockCfgGenerator($graph_factory);
 		$block_cdg_generator = new BlockCdgGenerator($graph_factory);
@@ -238,7 +237,7 @@ class AnalysisRunCommand extends Command {
 						$filename = $libraryFileInfo->getRealPath();
 						echo sprintf('#%d %s: ...', ++$i, $filename);
 						try {
-							$nodes = $this->memory_caching_ast_parser->parse($filename);
+							$nodes = $this->caching_ast_parser->parse($filename);
 							$traverser->traverse($nodes);
 							if ($this->maxComplexityComputingVisitor->getMaxComplexity() > 100) {
 								$maxComplexityExceededFileCt++;
@@ -290,8 +289,8 @@ class AnalysisRunCommand extends Command {
 				file_put_contents($this->cacheFile, json_encode($cache, JSON_PRETTY_PRINT));
 				echo "Analysis of `$libraryname` done: " . json_encode($library_cache, JSON_PRETTY_PRINT) . "\n";
 			}
-			$this->memory_caching_ast_parser->clear();
 			$this->memory_caching_pdg_factory->clear();
+			gc_collect_cycles();
 		}
 		echo "All done\n";
 		echo 'Runtime: ' . (microtime(true) - $time_start) . "s\n";
