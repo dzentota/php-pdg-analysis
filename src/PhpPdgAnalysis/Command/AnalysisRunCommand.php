@@ -285,7 +285,7 @@ class AnalysisRunCommand extends Command {
 				}
 
 				$cache[$libraryname] = $library_cache;
-				ksort($cache);
+				uksort($cache, "strnatcasecmp");
 				file_put_contents($this->cacheFile, json_encode($cache, JSON_PRETTY_PRINT));
 				echo "Analysis of `$libraryname` done: " . json_encode($library_cache, JSON_PRETTY_PRINT) . "\n";
 			}
