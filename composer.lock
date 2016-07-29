@@ -13,7 +13,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mwijngaard/php-cfg.git",
-                "reference": "bda3dc3486ed67fb3bcd5e325504b3829a03cf2d"
+                "reference": "8b7a69d03408584cbd600b16c1caafb720c75791"
             },
             "require": {
                 "nikic/php-parser": "^2.0",
@@ -40,7 +40,7 @@
                 }
             ],
             "description": "A Control Flow Graph implementation for PHP",
-            "time": "2016-06-13 12:37:01"
+            "time": "2016-07-29 08:35:07"
         },
         {
             "name": "ircmaxell/php-types",
@@ -48,7 +48,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mwijngaard/php-types",
-                "reference": "870c791c5c9d452bcd9ec084d8b57d71fd03997c"
+                "reference": "b97135b150c599daabaefbbcf4f582ff433070a2"
             },
             "require": {
                 "ircmaxell/php-cfg": "dev-master",
@@ -74,7 +74,7 @@
                 }
             ],
             "description": "A PHP CFG Type Inference / Reconstruction Engine",
-            "time": "2016-07-25 15:20:58"
+            "time": "2016-07-28 18:58:29"
         },
         {
             "name": "mwijngaard/php-pdg",
@@ -82,7 +82,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mwijngaard/php-pdg",
-                "reference": "b0f5c011a339dd889041ada1a326cc35ff639c0d"
+                "reference": "febc44e18a5edaaa15fbe5abd88131f64055e1ad"
             },
             "require": {
                 "ircmaxell/php-cfg": "dev-master",
@@ -110,7 +110,7 @@
                 }
             ],
             "description": "Program Dependence Graph (PDG) library for PHP",
-            "time": "2016-07-28 16:15:11"
+            "time": "2016-07-29 09:08:51"
         },
         {
             "name": "nikic/php-parser",
