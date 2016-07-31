@@ -7,6 +7,7 @@ use PhpPdgAnalysis\Analysis\LibraryInfo;
 use PhpPdgAnalysis\Analysis\Visitor\FuncCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncEvalCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncIncludeCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\FuncExceptionCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncVarFeatureCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\DuplicateNameCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\MagicMethodCountingVisitor;
@@ -32,6 +33,7 @@ use PhpPdgAnalysis\Table\ResolvedFunctionCalls;
 use PhpPdgAnalysis\Table\ResolvedMethodCalls;
 use PhpPdgAnalysis\Table\PropertyOverloading;
 use PhpPdgAnalysis\Table\DataDependences;
+use PhpPdgAnalysis\Table\FuncException;
 use PhpPdgAnalysis\Plot\EvalMaybeDependences;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
@@ -69,6 +71,7 @@ $analysingVisitors = [
 	'create-function-count' => new CreateFunctionCountingVisitor(),
 	'call-user-func-count' => new CallUserFuncCountingVisitor(),
 	'call-count' => new CallCountingVisitor(),
+	'func-exception-count' => new FuncExceptionCountingVisitor(),
 ];
 ksort($analysingVisitors);
 $funcAnalyses = [
@@ -93,6 +96,7 @@ $tables = [
 	'property-overloading' => new PropertyOverloading(),
 	"method-overloading" => new MethodOverloading(),
 	'data-dependences' => new DataDependences(),
+	'func-exception' => new FuncException(),
 ];
 ksort($tables);
 $plots = [
