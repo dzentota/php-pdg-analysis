@@ -63,7 +63,7 @@ class LibraryInfo implements DirectoryAnalysisInterface {
 			],
 			"fabric" => [
 				"name" => "Fabric",
-				"varion" => "1.6",
+				"version" => "1.6.489",
 				"release" => "08-07-2016",
 				"php" => "5.5.0",
 				"sloc" => 57573,
