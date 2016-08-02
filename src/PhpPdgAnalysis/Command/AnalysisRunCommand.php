@@ -91,7 +91,7 @@ class AnalysisRunCommand extends Command {
 		$control_dependence_generator = new ControlDependenceGenerator($block_cfg_generator, $pdt_generator, $block_cdg_generator);
 		$data_dependence_generator = new CombiningGenerator([
 			new DataDependenceGenerator(),
-			new MaybeDataDependenceGenerator()
+//			new MaybeDataDependenceGenerator()
 		]);
 		$this->memory_caching_pdg_factory = new MemoryCachingFactory(new PdgFactory($graph_factory, $control_dependence_generator, $data_dependence_generator));
 		$this->sdg_factory = new SdgFactory($graph_factory, $this->memory_caching_pdg_factory);
