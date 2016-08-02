@@ -231,6 +231,7 @@ class AnalysisRunCommand extends Command {
 					echo "Analysing files ...\n";
 					/** @var \SplFileInfo $libraryFileInfo */
 					$i = 0;
+					$allMaxComplexity = -1;
 					$maxComplexityExceededFileCt = 0;
 					$errorFileCt = 0;
 					foreach (new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($libraryRootFileInfo->getRealPath())), "/.*\\.php$/i") as $libraryFileInfo) {
@@ -239,7 +240,9 @@ class AnalysisRunCommand extends Command {
 						try {
 							$nodes = $this->caching_ast_parser->parse($filename);
 							$traverser->traverse($nodes);
-							if ($this->maxComplexityComputingVisitor->getMaxComplexity() > 100) {
+							$fileMaxComplexity = $this->maxComplexityComputingVisitor->getMaxComplexity();
+							$allMaxComplexity = max($allMaxComplexity, $fileMaxComplexity);
+							if ($fileMaxComplexity > 100) {
 								$maxComplexityExceededFileCt++;
 								throw new \RuntimeException('Max complexity exceeded');
 							}
@@ -262,6 +265,7 @@ class AnalysisRunCommand extends Command {
 							echo 'Error(' . $e->getMessage() . ")\n";
 						}
 					}
+					$library_cache['allMaxComplexity'] = $allMaxComplexity;
 					$library_cache['maxComplexityExceededFileCt'] = $maxComplexityExceededFileCt;
 					$library_cache['errorFileCt'] = $errorFileCt;
 					foreach ($analysisVisitorsToRun as $analysisVisitor) {
