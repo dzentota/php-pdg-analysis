@@ -11,13 +11,7 @@ class DataDependences implements TableInterface {
 			$cache['operandCount'] ?? '',
 			$cache['literalOperandCount'] ?? '',
 			$cache['boundVariableOperandCount'] ?? '',
-			$cache['operandWithWriteOpCount'] ?? '',
-			isset($cache['operandCount']) && isset($cache['literalOperandCount']) && isset($cache['boundVariableOperandCount']) && isset($cache['operandWithWriteOpCount']) ? $cache['operandCount'] - $cache['literalOperandCount'] - $cache['boundVariableOperandCount'] - $cache['operandWithWriteOpCount'] : '',
-			'',
-			$cache['resolvedOperandcount'] ?? '',
-			isset($cache['resolvedOperandcount']) && isset($cache['operandWithWriteOpCount']) ? number_format($cache['resolvedOperandcount'] / $cache['operandWithWriteOpCount'] * 100, 2) : '',
-			'',
-			$cache['dataDependenceEdgeCount'] ?? '',
+			isset($cache['operandCount']) && isset($cache['literalOperandCount']) && isset($cache['boundVariableOperandCount']) ? $cache['operandCount'] - $cache['literalOperandCount'] - $cache['boundVariableOperandCount'] : '',
 		];
 	}
 

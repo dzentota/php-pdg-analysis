@@ -35,6 +35,7 @@ use PhpPdgAnalysis\Table\ResolvedFunctionCalls;
 use PhpPdgAnalysis\Table\ResolvedMethodCalls;
 use PhpPdgAnalysis\Table\PropertyOverloading;
 use PhpPdgAnalysis\Table\DataDependences;
+use PhpPdgAnalysis\Table\DataDependences2;
 use PhpPdgAnalysis\Table\FuncException;
 use PhpPdgAnalysis\Table\FuncYield;
 use PhpPdgAnalysis\Table\AnalysisResult;
@@ -103,6 +104,7 @@ $tables = [
 	'property-overloading' => new PropertyOverloading(),
 	"method-overloading" => new MethodOverloading(),
 	'data-dependences' => new DataDependences(),
+	'data-dependences2' => new DataDependences2(),
 	'func-exception' => new FuncException(),
 	'func-yield' => new FuncYield(),
 	'analysis-result' => new AnalysisResult(),
