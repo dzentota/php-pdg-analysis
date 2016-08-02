@@ -14,10 +14,12 @@ use PhpPdgAnalysis\Analysis\Visitor\MagicMethodCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\ClassCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\ClosureCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FilesWithTopLevelLogicCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\FilesWithTopLevelVariablesCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FileCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\CreateFunctionCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\CallUserFuncCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\CallCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\FuncYieldGotoCountingVisitor;
 use PhpPdgAnalysis\Analysis\ProgramDependence\DataDependenceCountsAnalysis;
 use PhpPdgAnalysis\Analysis\ProgramDependence\MaybeDataDependenceAnalysis;
 use PhpPdgAnalysis\Analysis\SystemDependence\ResolvedCallCountsAnalysis;
@@ -34,6 +36,9 @@ use PhpPdgAnalysis\Table\ResolvedMethodCalls;
 use PhpPdgAnalysis\Table\PropertyOverloading;
 use PhpPdgAnalysis\Table\DataDependences;
 use PhpPdgAnalysis\Table\FuncException;
+use PhpPdgAnalysis\Table\FuncYield;
+use PhpPdgAnalysis\Table\AnalysisResult;
+use PhpPdgAnalysis\Table\CallFeatures;
 use PhpPdgAnalysis\Plot\EvalMaybeDependences;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
@@ -67,11 +72,13 @@ $analysingVisitors = [
 	'class-count' => new ClassCountingVisitor(),
 	'closure-count' => new ClosureCountingVisitor(),
 	'files-with-top-level-logic-count' => new FilesWithTopLevelLogicCountingVisitor(),
+	'files-with-top-level-variables-count' => new FilesWithTopLevelVariablesCountingVisitor(),
 	'file-count' => new FileCountingVisitor(),
 	'create-function-count' => new CreateFunctionCountingVisitor(),
 	'call-user-func-count' => new CallUserFuncCountingVisitor(),
 	'call-count' => new CallCountingVisitor(),
 	'func-exception-count' => new FuncExceptionCountingVisitor(),
+	'func-yield-goto-count' => new FuncYieldGotoCountingVisitor(),
 ];
 ksort($analysingVisitors);
 $funcAnalyses = [
@@ -97,6 +104,9 @@ $tables = [
 	"method-overloading" => new MethodOverloading(),
 	'data-dependences' => new DataDependences(),
 	'func-exception' => new FuncException(),
+	'func-yield' => new FuncYield(),
+	'analysis-result' => new AnalysisResult(),
+	'call-features' => new CallFeatures(),
 ];
 ksort($tables);
 $plots = [
