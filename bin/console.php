@@ -20,6 +20,7 @@ use PhpPdgAnalysis\Analysis\Visitor\CreateFunctionCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\CallUserFuncCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\CallCountingVisitor;
 use PhpPdgAnalysis\Analysis\Visitor\FuncYieldGotoCountingVisitor;
+use PhpPdgAnalysis\Analysis\Visitor\FuncPossibleAliasCountingVisitor;
 use PhpPdgAnalysis\Analysis\ProgramDependence\DataDependenceCountsAnalysis;
 use PhpPdgAnalysis\Analysis\ProgramDependence\MaybeDataDependenceAnalysis;
 use PhpPdgAnalysis\Analysis\SystemDependence\ResolvedCallCountsAnalysis;
@@ -40,6 +41,7 @@ use PhpPdgAnalysis\Table\FuncException;
 use PhpPdgAnalysis\Table\FuncYield;
 use PhpPdgAnalysis\Table\AnalysisResult;
 use PhpPdgAnalysis\Table\CallFeatures;
+use PhpPdgAnalysis\Table\FuncPossibleAlias;
 use PhpPdgAnalysis\Plot\EvalMaybeDependences;
 use PhpPdgAnalysis\Command\AnalysisClearCommand;
 use PhpPdgAnalysis\Command\AnalysisRunCommand;
@@ -80,6 +82,7 @@ $analysingVisitors = [
 	'call-count' => new CallCountingVisitor(),
 	'func-exception-count' => new FuncExceptionCountingVisitor(),
 	'func-yield-goto-count' => new FuncYieldGotoCountingVisitor(),
+	'func-possible-alias-count' => new FuncPossibleAliasCountingVisitor(),
 ];
 ksort($analysingVisitors);
 $funcAnalyses = [
@@ -109,6 +112,7 @@ $tables = [
 	'func-yield' => new FuncYield(),
 	'analysis-result' => new AnalysisResult(),
 	'call-features' => new CallFeatures(),
+	'func-possible-alias' => new FuncPossibleAlias(),
 ];
 ksort($tables);
 $plots = [
