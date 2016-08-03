@@ -85,6 +85,12 @@ class CallPairsCompareCommand extends Command {
 		}
 
 		$foundCount = 0;
+		$constructorCount = 0;
+		$toStringCount = 0;
+		$countCount = 0;
+		$sleepCount = 0;
+		$wakeupCount = 0;
+		$arrayAccessCount = 0;
 		$missingCount = 0;
 		$undefinedCount = 0;
 		foreach ($sdgPairs['calls'] as $file => $lines) {
@@ -96,7 +102,21 @@ class CallPairsCompareCommand extends Command {
 							if (isset($sdgFuncs[$func]) === true) {
 								$foundCount++;
 							} else {
-								$missingCount++;
+								if (preg_match('/\_\_construct$/', $func) === 1) {
+									$constructorCount++;
+								} else if (preg_match('/\_\_tostring$/', $func) === 1) {
+									$toStringCount++;
+								} else if (preg_match('/count$/', $func) === 1) {
+									$countCount++;
+								} else if (preg_match('/\_\_sleep$/', $func) === 1) {
+									$sleepCount++;
+								} else if (preg_match('/\_\_wakeup$/', $func) === 1) {
+									$wakeupCount++;
+								} else if (preg_match('/(offsetget|offsetset|offsetexists|offsetunset)$/', $func) === 1) {
+									$arrayAccessCount++;
+								} else {
+									$missingCount++;
+								}
 							}
 						} else {
 							$undefinedCount++;
@@ -106,7 +126,15 @@ class CallPairsCompareCommand extends Command {
 			}
 		}
 
-		echo "found: $foundCount, missing: $missingCount, undefined: $undefinedCount\n";
+		echo "found: $foundCount\n";
+		echo "constructor: $constructorCount\n";
+		echo "toString: $toStringCount\n";
+		echo "count: $countCount\n";
+		echo "sleep: $sleepCount\n";
+		echo "wakeup: $wakeupCount\n";
+		echo "arrayAccess: $arrayAccessCount\n";
+		echo "missing: $missingCount\n";
+		echo "undefined: $undefinedCount\n";
 		echo sprintf("Time: %0.2fs\n", microtime(true) - $starttime);
 	}
 }

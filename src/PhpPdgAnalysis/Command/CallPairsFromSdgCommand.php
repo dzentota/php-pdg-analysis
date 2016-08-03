@@ -83,6 +83,7 @@ class CallPairsFromSdgCommand extends Command {
 
 		$system = $sdg_factory->create($systemdir);
 
+		$fileLineCallCounts = [];    // used for tracking how many calls there are at one location
 		$out = [];
 		foreach ($system->sdg->getNodes() as $node) {
 			$funcName = null;
@@ -95,13 +96,21 @@ class CallPairsFromSdgCommand extends Command {
 					|| $op instanceof MethodCall
 					|| $op instanceof StaticCall
 				) {
+					$opFilename = $op->getFile();
+					$opEndLine = $op->getAttribute('endLine');
+
+					// skip multiple calls on one line
+					if (isset($fileLineCallCounts[$opFilename][$opEndLine]) === true) {
+						$fileLineCallCounts[$opFilename][$opEndLine]++;
+						if (isset($out['calls'][$opFilename][$opEndLine]) === true) {
+							unset($out['calls'][$opFilename][$opEndLine]);
+						}
+						continue;
+					}
+					$fileLineCallCounts[$opFilename][$opEndLine] = 1;
+
 					$callEdges = $system->sdg->getEdges($node, null, ['type' => 'call']);
 					if (!empty($callEdges)) {
-						$opFilename = $op->getFile();
-						$opStartLine = $op->getLine();
-						$opEndLine = $op->getAttribute('endLine');
-						$xdebugLine = $opStartLine === $opEndLine ? $opStartLine : $opEndLine - 1;      // weirdness because xdebug registers function calls at the line of its last argument, which due to our formatting of doctrine should always be equal to endline -1
-
 						foreach ($callEdges as $callEdge) {
 							/** @var FuncNode $toNode */
 							$toNode = $callEdge->getToNode();
@@ -113,7 +122,7 @@ class CallPairsFromSdgCommand extends Command {
 							}
 
 							if ($toScopedName !== null) {
-								$out['calls'][$opFilename][$xdebugLine][$toScopedName] = 1;
+								$out['calls'][$opFilename][$opEndLine][$toScopedName] = 1;
 							}
 						}
 					}
@@ -124,6 +133,7 @@ class CallPairsFromSdgCommand extends Command {
 				$out['builtin-funcs'][$node->getId()] = 1;
 			}
 		}
+
 		file_put_contents($outputFile, json_encode($out, JSON_PRETTY_PRINT));
 		echo sprintf("Time: %0.2fs\n", microtime(true) - $starttime);
 	}
