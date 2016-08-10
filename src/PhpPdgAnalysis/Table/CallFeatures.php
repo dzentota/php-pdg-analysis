@@ -7,7 +7,7 @@ class CallFeatures implements TableInterface {
 		$totalMethodCalls = isset($cache['methodCallCount']) && isset($cache['staticCallCount']) ? $cache['methodCallCount'] + $cache['staticCallCount'] : null;
 		return [
 			$cache["name"] ?? "",
-			$cache['php'] ?? '',
+//			$cache['php'] ?? '',
 			$cache['fileCount'] ?? '',
 			'',
 			$cache['funcCount'] ?? '',

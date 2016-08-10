@@ -4,24 +4,27 @@ namespace PhpPdgAnalysis\Table;
 
 class DynamicCalls implements TableInterface {
 	public function getValues($cache) {
+		$totalFuncs = isset($cache["funcCount"]) && isset($cache['methodCount']) && isset($cache['closureCount']) && isset($cache['scriptCount']) ? $cache['funcCount'] + $cache['methodCount'] + $cache['closureCount'] + $cache['scriptCount'] : null;
+		$totalFuncsWithVarMethodCalls = isset($cache['funcsWithVarMethodCallCount']) && isset($cache['funcsWithVarStaticMethodCallCount']) ? $cache['funcsWithVarMethodCallCount'] + $cache['funcsWithVarStaticMethodCallCount'] : null;
+		$totalVarMethodCalls = isset($cache['varMethodCallCount']) && isset($cache['varStaticMethodCallCount']) ? $cache['varMethodCallCount'] + $cache['varStaticMethodCallCount'] : null;
+
 		return [
 			$cache["name"] ?? "",
-			$cache["release"] ?? "",
-			$cache["php"] ?? "",
+			$totalFuncs ?? "",
+//			$cache["release"] ?? "",
+//			$cache["php"] ?? "",
 			'',
-			$cache["funcCallCount"] ?? "",
 			$cache["varFuncCallCount"] ?? "",
-			isset($cache['varFuncCallCount']) && isset($cache['funcCallCount']) ? number_format($cache['varFuncCallCount'] / $cache['funcCallCount'] * 100, 2) : '',
+			$cache["funcsWithVarFuncCallCount"] ?? "",
+			isset($cache['funcsWithVarFuncCallCount']) && isset($totalFuncs) ? number_format($cache['funcsWithVarFuncCallCount'] / $totalFuncs * 100, 2) : '',
 			'',
-			$cache["methodCallCount"] ?? "",
-			$cache["varMethodCallCount"] ?? "",
-			isset($cache['varMethodCallCount']) && isset($cache['methodCallCount']) ? number_format($cache['varMethodCallCount'] / $cache['methodCallCount'] * 100, 2) : '',
+			$totalVarMethodCalls ?? '',
+			$totalFuncsWithVarMethodCalls ?? '',
+			isset($totalFuncsWithVarMethodCalls) && isset($totalFuncs) ? number_format($totalFuncsWithVarMethodCalls / $totalFuncs * 100, 2) : '',
 			'',
-			$cache['staticCallCount'] ?? "",
-			$cache["varStaticMethodCallCount"] ?? "",
-			isset($cache['varStaticMethodCallCount']) && isset($cache['staticCallCount']) ? number_format($cache['varStaticMethodCallCount'] / $cache['staticCallCount'] * 100, 2) : '',
-			'',
-			isset($cache['callUserFuncCount']) && isset($cache['callUserFuncArrayCount']) ? $cache['callUserFuncCount'] + $cache['callUserFuncArrayCount'] : '',
+			$cache['callUserFuncCount'] ?? "",
+			$cache["funcsWithCallUserFuncCount"] ?? "",
+			isset($cache['funcsWithCallUserFuncCount']) && isset($totalFuncs) ? number_format($cache['funcsWithCallUserFuncCount'] / $totalFuncs * 100, 2) : '',
 		];
 	}
 

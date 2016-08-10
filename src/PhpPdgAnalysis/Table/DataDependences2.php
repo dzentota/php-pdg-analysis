@@ -13,11 +13,11 @@ class DataDependences2 implements TableInterface {
 			$cache['resolvedOperandcount'] ?? '',
 			isset($cache['resolvedOperandcount']) && isset($resolvableOperands) ? number_format($cache['resolvedOperandcount'] / $resolvableOperands * 100, 2) : '',
 			'',
-			$cache['undefinedVariables'] ?? '',
+			$cache['predefinedVariables'] ?? '',
 			$cache['undefinedVariables'] ?? '',
 			$cache['unresolvedDueToNotInGraphCount'] ?? '',
 			$cache['dynamicFeatureCount'] ?? '',
-			isset($resolvableOperands) && isset($cache['resolvedOperandcount']) && isset($cache['undefinedVariables']) && isset($cache['unresolvedDueToNotInGraphCount']) && isset($cache['dynamicFeatureCount']) ? $resolvableOperands - $cache['resolvedOperandcount'] - $cache['undefinedVariables'] - $cache['unresolvedDueToNotInGraphCount'] - $cache['dynamicFeatureCount'] : '',
+//			isset($resolvableOperands) && isset($cache['resolvedOperandcount']) && isset($cache['predefinedVariables']) && isset($cache['undefinedVariables']) && isset($cache['unresolvedDueToNotInGraphCount']) && isset($cache['dynamicFeatureCount']) ? $resolvableOperands - $cache['resolvedOperandcount'] - $cache['predefinedVariables'] - $cache['undefinedVariables'] - $cache['unresolvedDueToNotInGraphCount'] - $cache['dynamicFeatureCount'] : '',
 		];
 	}
 
