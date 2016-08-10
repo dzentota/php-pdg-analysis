@@ -22,6 +22,10 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 		$funcCallEdgeToFuncCount = 0;
 		$funcCallEdgeToBuiltinFuncCount = 0;
 		$funcCallEdgeToUndefinedFuncCount = 0;
+		$funcCallEdgeToRemainingCount = 0;
+
+		$funcCallUnresolvedDueToVariableFuncCall = 0;
+		$funcCallUnresolvedDueToOther = 0;
 
 		$methodCallNodes = 0;
 		$typedMethodCallNodes = 0;
@@ -29,7 +33,11 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 		$methodCallEdgeToFuncCount = 0;
 		$methodCallEdgeToBuiltinFuncCount = 0;
 		$methodCallEdgeToUndefinedFuncCount = 0;
+		$methodCallEdgeToRemainingCount = 0;
 
+		$methodCallUnresolvedDueToVariableMethodCall = 0;
+		$methodCallUnresolvedDueToUntyped = 0;
+		$methodCallUnresolvedDueToOther = 0;
 
 		foreach ($system->sdg->getNodes() as $node) {
 			if ($node instanceof OpNode) {
@@ -50,15 +58,23 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 								$funcCallEdgeToBuiltinFuncCount++;
 							} else if ($to_node instanceof UndefinedFuncNode) {
 								$funcCallEdgeToUndefinedFuncCount++;
+							} else {
+								$funcCallEdgeToRemainingCount++;
 							}
 						}
+					} else if ($op->name instanceof Literal === false) {
+						$funcCallUnresolvedDueToVariableFuncCall++;
+					} else {
+						$funcCallUnresolvedDueToOther++;
 					}
+
 				} else if ($op instanceof MethodCall || $op instanceof StaticCall) {
 					$methodCallNodes++;
 
 					/** @var Operand $classOperand */
 					$classOperand = $op instanceof MethodCall ? $op->var : $op->class;
-					if ($this->operandResolvesToClass($classOperand) === true) {
+					$resolves_to_class = $this->operandResolvesToClass($classOperand);
+					if ($resolves_to_class === true) {
 						$typedMethodCallNodes++;
 					}
 
@@ -72,8 +88,16 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 								$methodCallEdgeToBuiltinFuncCount++;
 							} else if ($to_node instanceof UndefinedFuncNode) {
 								$methodCallEdgeToUndefinedFuncCount++;
+							} else {
+								$methodCallEdgeToRemainingCount++;
 							}
 						}
+					} else if ($op->name instanceof Literal === false) {
+						$methodCallUnresolvedDueToVariableMethodCall++;
+					} else if ($resolves_to_class === false) {
+						$methodCallUnresolvedDueToUntyped++;
+					} else {
+						$methodCallUnresolvedDueToOther++;
 					}
 				}
 			}
@@ -86,12 +110,19 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 			$funcCallEdgeToBuiltinFuncCount,
 			$funcCallEdgeToUndefinedFuncCount,
 
+			$funcCallUnresolvedDueToVariableFuncCall,
+			$funcCallUnresolvedDueToOther,
+
 			$methodCallNodes,
 			$typedMethodCallNodes,
 			$resolvedMethodCallNodeCount,
 			$methodCallEdgeToFuncCount,
 			$methodCallEdgeToBuiltinFuncCount,
 			$methodCallEdgeToUndefinedFuncCount,
+
+			$methodCallUnresolvedDueToVariableMethodCall,
+			$methodCallUnresolvedDueToUntyped,
+			$methodCallUnresolvedDueToOther,
 		]);
 	}
 
@@ -103,12 +134,19 @@ class ResolvedCallCountsAnalysis implements SystemAnalysisInterface {
 			'funcCallEdgeToBuiltinFuncCount',
 			'funcCallEdgeToUndefinedFuncCount',
 
+			'funcCallUnresolvedDueToVariableFuncCall',
+			'funcCallUnresolvedDueToOther',
+
 			'methodCallNodes',
 			'typedMethodCallNodes',
 			'resolvedMethodCallNodeCount',
 			'methodCallEdgeToFuncCount',
 			'methodCallEdgeToBuiltinFuncCount',
 			'methodCallEdgeToUndefinedFuncCount',
+
+			'methodCallUnresolvedDueToVariableMethodCall',
+			'methodCallUnresolvedDueToUntyped',
+			'methodCallUnresolvedDueToOther',
 		];
 	}
 

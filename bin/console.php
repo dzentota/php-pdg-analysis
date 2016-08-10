@@ -27,7 +27,7 @@ use PhpPdgAnalysis\Analysis\SystemDependence\ResolvedCallCountsAnalysis;
 use PhpPdgAnalysis\Analysis\SystemDependence\OverloadingCountsAnalysis;
 use PhpPdgAnalysis\Table\Overview;
 use PhpPdgAnalysis\Table\FuncIncludes;
-use PhpPdgAnalysis\Table\FuncEval;
+use PhpPdgAnalysis\Table\FuncEvalInclude;
 use PhpPdgAnalysis\Table\FuncVarVar;
 use PhpPdgAnalysis\Table\MethodOverloading;
 use PhpPdgAnalysis\Table\DuplicateNames;
@@ -97,7 +97,7 @@ $systemAnalyses = [
 ksort($systemAnalyses);
 $tables = [
 	"overview" => new Overview(),
-	"func-eval" => new FuncEval(),
+	"func-eval" => new FuncEvalInclude(),
 	"func-includes" => new FuncIncludes(),
 	"func-var-var" => new FuncVarVar(),
 	'duplicate-names' => new DuplicateNames(),

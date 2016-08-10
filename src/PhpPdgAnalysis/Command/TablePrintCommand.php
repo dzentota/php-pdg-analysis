@@ -42,6 +42,12 @@ class TablePrintCommand extends Command {
 		$maxLengths = [];
 		foreach ($cache as $results) {
 			$values = $analysis->getValues($results);
+			// format integer and float values with
+			foreach ($values as $i => $value) {
+				if ((string)(int) $value === (string) $value) {
+					$values[$i] = number_format($value);
+				}
+			}
 			foreach ($values as $i => $value) {
 				$valueLength = strlen($value);
 				if (!isset($maxLengths[$i]) || $maxLengths[$i] < $valueLength) {
@@ -63,13 +69,13 @@ class TablePrintCommand extends Command {
 			return 0;
 		});
 
-		$str = "";
+		$str = '';
 		foreach ($rows as $values) {
 			$paddedValues = [];
 			foreach ($values as $i => $value) {
 				$paddedValues[] = str_pad($value, $maxLengths[$i]);
 			}
-			$str .= '    ' . implode(" & ", $paddedValues) . "\\\\\n";
+			$str .= '    '. implode(" & ", $paddedValues) . "\\\\\n";
 		}
 		echo $str;
 	}
