@@ -15,8 +15,9 @@ class DataDependences2 implements TableInterface {
 			'',
 			$cache['predefinedVariables'] ?? '',
 			$cache['undefinedVariables'] ?? '',
-			$cache['unresolvedDueToNotInGraphCount'] ?? '',
 			$cache['dynamicFeatureCount'] ?? '',
+			$cache['unresolvedDueToNotInGraphCount'] ?? '',
+			$cache['otherCount'] ?? '',
 //			isset($resolvableOperands) && isset($cache['resolvedOperandcount']) && isset($cache['predefinedVariables']) && isset($cache['undefinedVariables']) && isset($cache['unresolvedDueToNotInGraphCount']) && isset($cache['dynamicFeatureCount']) ? $resolvableOperands - $cache['resolvedOperandcount'] - $cache['predefinedVariables'] - $cache['undefinedVariables'] - $cache['unresolvedDueToNotInGraphCount'] - $cache['dynamicFeatureCount'] : '',
 		];
 	}
