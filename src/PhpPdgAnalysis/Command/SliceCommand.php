@@ -4,7 +4,7 @@ namespace PhpPdgAnalysis\Command;
 
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
-use PhpPdg\AstBridge\Slicing\Slicer;
+use PhpPdg\AstBridge\Slicing\PdgBasedSlicer;
 use PhpPdg\AstBridge\System as AstSystem;
 use PhpPdg\CfgBridge\SystemFactory;
 use Symfony\Component\Console\Command\Command;
@@ -78,10 +78,10 @@ class SliceCommand extends Command {
 			$ast_system->addAst($file_path, $ast_parser->parse(file_get_contents($file_path)));
 		}
 
-		$slicer = new Slicer(new SystemFactory(), PdgSystemFactory::createDefault(), new PdgBackwardSystemSlicer());
+		$slicer = new PdgBasedSlicer(new SystemFactory($ast_parser), PdgSystemFactory::createDefault(), new PdgBackwardSystemSlicer());
 		$sliced_ast_system = $slicer->slice($ast_system, $slice_file_path, $slice_line_nr);
 		$ast_printer = new Standard();
-		foreach ($sliced_ast_system->getFilePaths() as $file_path) {
+		foreach ($sliced_ast_system->getFilenames() as $file_path) {
 			$output_file_path = str_replace($input_path, $output_path, $file_path);
 			file_put_contents($output_file_path, $ast_printer->prettyPrintFile($sliced_ast_system->getAst($file_path)));
 		}
