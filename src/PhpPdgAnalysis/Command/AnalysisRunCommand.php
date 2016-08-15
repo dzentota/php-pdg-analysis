@@ -6,10 +6,14 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
 use PhpPdg\CfgBridge\System as CfgSystem;
-use PhpPdg\ProgramDependence\DataDependence\CombiningGenerator;
-use PhpPdg\ProgramDependence\DataDependence\MaybeGenerator as MaybeDataDependenceGenerator;
 use PhpPdg\ProgramDependence\Factory as PdgFactory;
 use PhpPdg\ProgramDependence\MemoryCachingFactory;
+use PhpPdg\SystemDependence\CallDependence\CombiningGenerator;
+use PhpPdg\SystemDependence\CallDependence\FunctionCallGenerator;
+use PhpPdg\SystemDependence\CallDependence\MethodCallGenerator;
+use PhpPdg\SystemDependence\CallDependence\MethodResolver;
+use PhpPdg\SystemDependence\CallDependence\OperandClassResolver;
+use PhpPdg\SystemDependence\CallDependence\OverloadingCallGenerator;
 use PhpPdg\SystemDependence\Factory as SdgFactory;
 use PhpPdgAnalysis\Analysis\DirectoryAnalysisInterface;
 use PhpPdgAnalysis\Analysis\ProgramDependence\FuncAnalysisInterface;
@@ -89,12 +93,17 @@ class AnalysisRunCommand extends Command {
 		$block_cdg_generator = new BlockCdgGenerator($graph_factory);
 		$pdt_generator = new PdgGenerator($graph_factory);
 		$control_dependence_generator = new ControlDependenceGenerator($block_cfg_generator, $pdt_generator, $block_cdg_generator);
-		$data_dependence_generator = new CombiningGenerator([
-			new DataDependenceGenerator(),
-//			new MaybeDataDependenceGenerator()
-		]);
+		$data_dependence_generator = new DataDependenceGenerator();
 		$this->memory_caching_pdg_factory = new MemoryCachingFactory(new PdgFactory($graph_factory, $control_dependence_generator, $data_dependence_generator));
-		$this->sdg_factory = new SdgFactory($graph_factory, $this->memory_caching_pdg_factory);
+
+		$operand_class_resolver = new OperandClassResolver();
+		$method_resolver = new MethodResolver();
+		$call_dependence_generator = new CombiningGenerator([
+			new FunctionCallGenerator(),
+			new MethodCallGenerator($operand_class_resolver, $method_resolver),
+			new OverloadingCallGenerator($operand_class_resolver, $method_resolver)
+		]);
+		$this->sdg_factory = new SdgFactory($graph_factory, $this->memory_caching_pdg_factory, $call_dependence_generator);
 
 		parent::__construct("analysis:run");
 	}
